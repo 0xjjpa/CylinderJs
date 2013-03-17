@@ -1,0 +1,13 @@
+{
+  "name": "VirtualLab",
+  "version": "0.0.1",
+  "main": "app.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ],
+  "dependencies": {
+    "raphael": "latest"
+  }
+}
