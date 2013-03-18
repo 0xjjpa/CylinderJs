@@ -6,3 +6,13 @@ body {
     margin: 50px auto 0 auto;
     width: 300px;
 }
+
+#container {
+	float: left;
+	width: 400px;
+}
+
+#warehouse {	
+	float: left;
+	width: 100px;
+}
