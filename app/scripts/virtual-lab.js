@@ -1,5 +1,9 @@
-(function(vl, r){
-	if(!r) throw new Error("Virtual Lab relies on RaphaelJS");
-	vl
+var VirtualLab = VirtualLab || {};
+VirtualLab.VERSION = '0.1';
 
-})(window.virtualLab || {}, window.Raphael)
+VirtualLab.Workspace = (function(vl, r, undefined){
+	var Workspace = function() {
+		
+	}
+	return Workspace;
+})(VirtualLab, Raphael)
