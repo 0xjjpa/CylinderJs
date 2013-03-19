@@ -31,11 +31,14 @@ VirtualLab.Item = (function(vl, r, undefined){
             });
         };
 
-        this.construct = function() {
-            this.components.push({id: 'ItemFrame', path: self.paper.rect(X+BORDER*2,Y+BORDER+1, FRAME_WIDTH, FRAME_HEIGHT).attr({'stroke-width': BORDER}) });
+        this.load = function() {
+        		this.components.push({id: 'ItemFrame', path: self.paper.rect(X+BORDER*2,Y+BORDER+1, FRAME_WIDTH, FRAME_HEIGHT).attr({'stroke-width': BORDER}) });
             this.components.push({id: 'ItemHeader', path: self.paper.rect(X+BORDER*2+PADDING,Y+BORDER*2+PADDING+1, HEADER_WIDTH, HEADER_HEIGHT).attr({'stroke-width': BORDER}) });
             this.components.push({id: 'ItemContainer', path: self.paper.rect(X+BORDER*2+PADDING,Y+BORDER*2+PADDING+1+HEADER_HEIGHT+PADDING+BORDER, CONTAINER_WIDTH, CONTAINER_HEIGHT).attr({'stroke-width': BORDER}) });
+        }
 
+        this.construct = function() {
+        		this.load();
             this.draw();
         };
 	};
