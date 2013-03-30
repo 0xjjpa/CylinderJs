@@ -24,24 +24,40 @@
       throw new Error('A container height needs to be provided');
     }
 
+    //var t = topWidth;
+    //topWidth = topWidth > bottomWidth ? topWidth : bottomWidth;
+    //bottomWidth = topWidth > bottomWidth ? topWidth : topWidth;
+
     yRotation = +yRotation;
     yRotation = yRotation > 100 ? yRotation%100 : yRotation;
-    yRotation = yRotation > 0 ? yRotation*topWidth/100 : 1*topWidth/100;
+    yRotation = yRotation > 0 ? yRotation/100 : 1/100;
+    yRotation = topWidth < bottomWidth ? yRotation*topWidth : yRotation*bottomWidth;
+    console.log(yRotation)
 
-    var spaceForContent = 5,
-        ellipsesDifference = topWidth > bottomWidth ? topWidth - bottomWidth : bottomWidth - topWidth;
+    var padding = .10;
+    var ellipsesDifference = topWidth > bottomWidth ? topWidth - bottomWidth : bottomWidth - topWidth;
 
     var cylinder = paper.set();
     
     var container = paper.path([
-        ["M", x-topWidth, y],
-        ["L", x+topWidth, y],
-        ["L", x+bottomWidth, y+containerHeight],
-        ["L", x-bottomWidth, y+containerHeight],
-        ["L", x-topWidth, y]
+      ["M", x-topWidth, y],
+      ["L", x+topWidth, y],
+      ["L", x+bottomWidth, y+containerHeight],
+      ["L", x-bottomWidth, y+containerHeight],
+      ["L", x-topWidth, y]
       ]).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
-    var top = paper.ellipse(x, y, topWidth, topWidth*yRotation/bottomWidth).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
-    var base = paper.ellipse(x, y+containerHeight, bottomWidth, yRotation).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
+
+    if (topWidth < bottomWidth) {
+      topRy = topWidth*yRotation/bottomWidth;
+      baseRy = yRotation;
+    } else {
+      topRy = yRotation;
+      baseRy = bottomWidth*yRotation/topWidth;
+    }
+
+    var base = paper.ellipse(x, y+containerHeight, bottomWidth, baseRy).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
+    var top = paper.ellipse(x, y, topWidth, topRy).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
+    
 
     cylinder.push(top);
     cylinder.push(container);
@@ -53,19 +69,36 @@
       percentageContent = percentageContent > 0 ? percentageContent*containerHeight/100 : 1*containerHeight/100;
 
       var angle = Math.atan(ellipsesDifference/containerHeight);
-      var topContentWidth = ((containerHeight-percentageContent)*Math.tan(angle))+topWidth;
+
+      if (topWidth < bottomWidth) {
+        var topContentWidth = ((containerHeight-percentageContent)*Math.tan(angle))+topWidth;
+      } else {
+        var topContentWidth = (percentageContent*Math.tan(angle))+bottomWidth;
+      }
+
+      y = y - padding*10;
 
       var content = paper.path([
-        ["M", x-topContentWidth+spaceForContent, y+containerHeight-percentageContent],
-        ["L", x+topContentWidth-spaceForContent, y+containerHeight-percentageContent],
-        ["L", x+bottomWidth-spaceForContent, y+containerHeight],
-        ["L", x-bottomWidth+spaceForContent, y+containerHeight],
-        ["L", x-topContentWidth+spaceForContent, y+containerHeight-percentageContent]
-      ]).attr({fill: "rgba(5, 62, 123, 1)","stroke-width": 0});
-      var topContent = rsr.ellipse(x, y+containerHeight-percentageContent, topContentWidth-spaceForContent, topContentWidth*yRotation/bottomWidth-spaceForContent).attr({fill: "rgba(47, 83, 123, 1)","stroke-width": 0});
-      var baseContent = rsr.ellipse(x, y+containerHeight, bottomWidth-spaceForContent, yRotation-spaceForContent).attr({fill: "rgba(5, 62, 123, 1)","stroke-width": 0});
+        ["M", x-topContentWidth+(topContentWidth*padding), y+containerHeight-percentageContent],
+        ["L", x+topContentWidth-(topContentWidth*padding), y+containerHeight-percentageContent],
+        ["L", x+bottomWidth-(bottomWidth*padding), y+containerHeight],
+        ["L", x-bottomWidth+(bottomWidth*padding), y+containerHeight],
+        ["L", x-topContentWidth+(topContentWidth*padding), y+containerHeight-percentageContent]
+        ]).attr({fill: "rgba(5, 62, 123, .1)","stroke-width": 1});
+
+      if (topWidth < bottomWidth) {
+        topContentRy = topContentWidth*yRotation/bottomWidth;
+        baseContentRy = yRotation;
+      } else {
+        topContentRy = yRotation;
+        baseContentRy = bottomWidth*yRotation/topWidth;
+      }
+
+      var baseContent = rsr.ellipse(x, y+containerHeight, bottomWidth-(bottomWidth*padding), baseContentRy-(baseContentRy*padding*2)).attr({fill: "rgba(220, 235, 241, 1)","stroke-width": 1});
+      var topContent = rsr.ellipse(x, y+containerHeight-percentageContent, topContentWidth-(topContentWidth*padding), topContentRy-(topContentRy*padding*2)).attr({fill: "rgba(220, 235, 241, 1)","stroke-width": 1});
+      
     } 
-        
+
     return cylinder;
   }
 

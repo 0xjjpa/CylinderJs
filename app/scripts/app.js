@@ -1,23 +1,24 @@
 //var workspace = new VirtualLab.Workspace("container").attr({fill: "rgba(255, 0, 0, .5)", stroke: "1"});
 //var workspace = new VirtualLab.Workspace("container");
-var rsr = Raphael('cylinder', '600', '420');
+var rsr = Raphael('cylinder', '600', '160');
 
-var x = 250;
+var x = 65;
 var y = 30;
 
-var containerWidth = 50;
-var containerHeight = 250;
-var skewHeight = 40;
-var contentHeight = 120;
+var containerHeight = 90;
+var topWidth = 55;
+var bottomWidth = 40;
+var yRotation = 40; // Done
 
-var topWidth = 30;
-var bottomWidth = 90;
-var yRotation = 100; // Done
+var c1 = rsr.cylinder(x, y, topWidth, bottomWidth, containerHeight, yRotation, true, 100);
+var c2 = rsr.cylinder(x+140, y, topWidth, bottomWidth, containerHeight, yRotation, false, 20);
+var c3 = rsr.cylinder(x+140*2, y, topWidth, bottomWidth, containerHeight, yRotation, true, 20);
+var c4 = rsr.cylinder(x+140*3, y, topWidth, bottomWidth, containerHeight, yRotation, true, 50);
 
-var cyl = rsr.cylinder(x, y, topWidth, bottomWidth, containerHeight, yRotation, true, 40);
-console.log(cyl)
 
-var workspace = rsr.rect(0,0, 600, 420);
+
+
+var workspace = rsr.rect(0,0, 550, 150);
 //workspace.attr({fill: "rgba(255, 0, 0, .5)", stroke: "1"});
 //console.log(workspace);
 //var warehouse = new VirtualLab.Warehouse("warehouse");
