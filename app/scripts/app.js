@@ -2,7 +2,7 @@
 //var workspace = new VirtualLab.Workspace("container");
 var rsr = Raphael('cylinder', '600', '420');
 
-var x = 150;
+var x = 250;
 var y = 30;
 
 var containerWidth = 50;
@@ -14,7 +14,7 @@ var topWidth = 30;
 var bottomWidth = 90;
 var yRotation = 100; // Done
 
-var cyl = rsr.cylinder(x, y, topWidth, bottomWidth, containerHeight, yRotation, false, 60);
+var cyl = rsr.cylinder(x, y, topWidth, bottomWidth, containerHeight, yRotation, true, 40);
 console.log(cyl)
 
 var workspace = rsr.rect(0,0, 600, 420);
