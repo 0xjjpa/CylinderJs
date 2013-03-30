@@ -1,14 +1,15 @@
+//var workspace = new VirtualLab.Workspace("container").attr({fill: "rgba(255, 0, 0, .5)", stroke: "1"});
 var workspace = new VirtualLab.Workspace("container");
-var warehouse = new VirtualLab.Warehouse("warehouse");
+//var warehouse = new VirtualLab.Warehouse("warehouse");
 
 var tube = new VirtualLab.Tube();
 //var water = new VirtualLab.Element('water', 50);
 
 //tube.addContent(water);
 //workspace.add(tube);
-warehouse.add(VirtualLab.Item);
-warehouse.add(VirtualLab.Item);
-warehouse.add(VirtualLab.Item);
+//warehouse.add(VirtualLab.Item);
+//warehouse.add(VirtualLab.Item);
+//warehouse.add(VirtualLab.Item);
 //warehouse.add(VirtualLab.Liquid);
 
 var x1 = 150;
@@ -23,6 +24,7 @@ var contentHeight = 120;
 
 /* Vertical Container */
 var rsr = Raphael('holder', '500', '500');
+console.log(rsr);
 
 var top = rsr.ellipse(x1, y1, containerWidth, skewHeight);
 var base = rsr.ellipse(x1, containerHeight, containerWidth, skewHeight);
@@ -30,9 +32,9 @@ var left = rsr.path("M"+(x1-containerWidth)+","+y1+"L"+ +(x1-containerWidth) +",
 var right = rsr.path("M"+(x1+containerWidth)+","+y1+"L"+ +(x1+containerWidth) +", "+ +(containerHeight) +"");
 //var topEffect = rsr.ellipse(x1, y1+spaceForContent-1, containerWidth-1, skewHeight-spaceForContent+1);
 
-var content = rsr.rect(x1-containerWidth+spaceForContent,containerHeight-contentHeight,containerWidth*2-(spaceForContent*2),contentHeight).attr({fill: "rgba(5, 62, 123, 1)","stroke-width": 1});
-var topContent = rsr.ellipse(x1, containerHeight-contentHeight, containerWidth-spaceForContent, skewHeight-spaceForContent).attr({fill: "rgba(47, 83, 123, .2)","stroke-width": 1});
-var baseContent = rsr.ellipse(x1, containerHeight, containerWidth-spaceForContent, skewHeight-spaceForContent).attr({fill: "rgba(5, 62, 123, .2)","stroke-width": 1});
+//var content = rsr.rect(x1-containerWidth+spaceForContent,containerHeight-contentHeight,containerWidth*2-(spaceForContent*2),contentHeight).attr({fill: "rgba(5, 62, 123, 1)","stroke-width": 1});
+//var topContent = rsr.ellipse(x1, containerHeight-contentHeight, containerWidth-spaceForContent, skewHeight-spaceForContent).attr({fill: "rgba(47, 83, 123, .2)","stroke-width": 1});
+//var baseContent = rsr.ellipse(x1, containerHeight, containerWidth-spaceForContent, skewHeight-spaceForContent).attr({fill: "rgba(5, 62, 123, .2)","stroke-width": 1});
 
 var x1 = 270;
 var y1 = 80;
@@ -45,23 +47,60 @@ var spaceForContent = 4;
 var contentHeight = 120;
 var contentWidth = containerWidth;
 var angle = 0;
-var m = containerHeight / contentWidth;
-console.log(m);
 
-var top = rsr.ellipse(x1, y1, containerWidth, skewHeight);
-var base = rsr.ellipse(x1, containerHeight, containerWidth+angle, skewHeight);
-var left = rsr.path("M"+(x1-containerWidth)+","+y1+"L"+ +(x1-containerWidth-angle) +", "+ +(containerHeight) +"");
-var right = rsr.path("M"+(x1+containerWidth)+","+y1+"L"+ +(x1+containerWidth+angle) +", "+ +(containerHeight) +"");
+function getSinDeg(deg) {
+  if( (deg/90) > 1) {
+    var rad90 = 90 * Math.PI/180;
+    var rad = (deg- (90*parseInt(deg/90, 10))) * Math.PI/180;
+    return Math.sin(rad90) * parseInt(deg/90, 10) + Math.sin(rad);
+  } else {
+    var rad = deg * Math.PI/180;
+    return Math.sin(rad);
+  }
+}
+
+function getSin(rad) {
+  return Math.sin(rad);
+}
+
+console.log(getSin(2 * Math.PI/4))
+
+var topEllipse = rsr.ellipse(x1, y1, containerWidth, skewHeight).attr({fill: "hsb(0, 1, 1)", stroke: "none", opacity: .5});
+var base = rsr.ellipse(x1, containerHeight, (containerHeight*getSinDeg(angle)), skewHeight);
+var left = rsr.path("M"+(x1-containerWidth)+","+y1+"L"+ +(x1- (containerHeight*getSinDeg(angle)) ) +", "+ +(containerHeight) +"");
+var right = rsr.path("M"+(x1+containerWidth)+","+y1+"L"+ +(x1+ (containerHeight*getSinDeg(angle)) ) +", "+ +(containerHeight) +"");
+
+/*
+var start = function () {
+  this.ox = this.attr("cx");
+  this.oy = this.attr("cy");
+  this.animate({opacity: .25}, 500, ">");
+};
+var move = function (dx, dy) {
+  this.attr({cx: this.ox + dx, cy: this.oy + dy});
+};
+
+var up = function() {
+  this.animate({opacity: .5}, 500, ">");
+};
+
+
+rsr.set(topEllipse).drag(move, start, up);
+*/
+
+
 //var topEffect = rsr.ellipse(x1, y1+spaceForContent-1, containerWidth-1, skewHeight-spaceForContent+1);
+/*
 rsr.path("M"+(x1-containerWidth+spaceForContent)+","+ +(containerHeight-contentHeight) +
   "L"+ +(x1+containerWidth-spaceForContent)+","+  +(containerHeight-contentHeight)+ 
-  "L"+ +(x1+containerWidth+angle-spaceForContent) +", "+ +(containerHeight) +
-  "L"+ +(x1-containerWidth-angle+spaceForContent)+","+ containerHeight +"z"
-  ).attr({"stroke": "red", "fill": "red"});
+  "L"+ +(x1+(containerHeight*getSinDeg(angle))-spaceForContent) +", "+ +(containerHeight) +
+  "L"+ +(x1-(containerHeight*getSinDeg(angle))+spaceForContent)+","+ containerHeight +"z"
+  ).attr({"stroke": "red", "fill": "rgba(255,0,0,.5)"});
+*/
 
 //var content = rsr.rect(x1-containerWidth+spaceForContent,containerHeight-contentHeight,containerWidth*2-(spaceForContent*2),contentHeight).attr({fill: "rgba(5, 62, 123, 1)","stroke-width": 1});
-var topContent = rsr.ellipse(x1, containerHeight-contentHeight, containerWidth-spaceForContent, skewHeight-spaceForContent).attr({fill: "rgba(47, 83, 123, .2)","stroke-width": 1});
-var baseContent = rsr.ellipse(x1, containerHeight, containerWidth-spaceForContent+angle, skewHeight-spaceForContent).attr({fill: "rgba(5, 62, 123, .2)","stroke-width": 1});
+//var topContent = rsr.ellipse(x1, containerHeight-contentHeight, containerWidth-spaceForContent, skewHeight-spaceForContent).attr({fill: "rgba(47, 83, 123, .2)","stroke-width": 1});
+//var baseContent = rsr.ellipse(x1, containerHeight, (containerHeight*getSinDeg(angle))-spaceForContent, skewHeight-spaceForContent).attr({fill: "rgba(5, 62, 123, .2)","stroke-width": 1});
 
 
 var angle = 691;
@@ -77,7 +116,7 @@ function getTanDeg(deg) {
   }
 }
 
-var x0 = 10;
+var x0 = 40;
 var y0 = 10;
 var rx0 = 20;
 var rx1 = 300;
