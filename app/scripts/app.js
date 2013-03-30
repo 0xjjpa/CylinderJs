@@ -1,8 +1,28 @@
 //var workspace = new VirtualLab.Workspace("container").attr({fill: "rgba(255, 0, 0, .5)", stroke: "1"});
-var workspace = new VirtualLab.Workspace("container");
+//var workspace = new VirtualLab.Workspace("container");
+var rsr = Raphael('cylinder', '600', '420');
+
+var x = 150;
+var y = 30;
+
+var containerWidth = 50;
+var containerHeight = 250;
+var skewHeight = 40;
+var contentHeight = 120;
+
+var topWidth = 30;
+var bottomWidth = 90;
+var yRotation = 100; // Done
+
+var cyl = rsr.cylinder(x, y, topWidth, bottomWidth, containerHeight, yRotation, false, 60);
+console.log(cyl)
+
+var workspace = rsr.rect(0,0, 600, 420);
+//workspace.attr({fill: "rgba(255, 0, 0, .5)", stroke: "1"});
+//console.log(workspace);
 //var warehouse = new VirtualLab.Warehouse("warehouse");
 
-var tube = new VirtualLab.Tube();
+//var tube = new VirtualLab.Tube();
 //var water = new VirtualLab.Element('water', 50);
 
 //tube.addContent(water);
@@ -27,6 +47,7 @@ var rsr = Raphael('holder', '500', '500');
 console.log(rsr);
 
 var top = rsr.ellipse(x1, y1, containerWidth, skewHeight);
+console.log(top)
 var base = rsr.ellipse(x1, containerHeight, containerWidth, skewHeight);
 var left = rsr.path("M"+(x1-containerWidth)+","+y1+"L"+ +(x1-containerWidth) +", "+ +(containerHeight) +"");
 var right = rsr.path("M"+(x1+containerWidth)+","+y1+"L"+ +(x1+containerWidth) +", "+ +(containerHeight) +"");

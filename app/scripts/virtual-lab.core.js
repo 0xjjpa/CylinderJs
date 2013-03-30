@@ -18,7 +18,12 @@ VirtualLab.Core = (function(vl, r, undefined){
       });
     };
     this.construct = function() {
+      if(!this.load) {
+        throw new Error("No load function specified");
+      }
+      this.load();
       this.draw.call(this);
+      return this.paper;
     };
     this.getX = function() {
       return X;

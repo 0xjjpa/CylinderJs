@@ -6,16 +6,15 @@ VirtualLab.Workspace = (function(vl, r, undefined){
 		var DEFAULT_HEIGHT = 420;
 		var DEFAULT_WIDTH = 600;
 
-		this.construct = function() {
+		this.load = function() {
 			self.paper = r(document.getElementById(domId), width || DEFAULT_WIDTH, height || DEFAULT_HEIGHT);		
 			self.components.push({
 				id: 'Workspace', 
 				path: self.paper.rect(self.getX(),self.getY(), DEFAULT_WIDTH, DEFAULT_HEIGHT) 
 			});
-			Workspace.prototype.construct.call(self);
 		}
 
-		self.construct();
+		return Workspace.prototype.construct.call(self);
 	}
 
 	Workspace.prototype = new vl.Core();
