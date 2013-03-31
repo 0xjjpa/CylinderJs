@@ -15,7 +15,9 @@ var c2 = rsr.cylinder(x+140, y, topWidth, bottomWidth, containerHeight, yRotatio
 var c3 = rsr.cylinder(x+140*2, y, topWidth, bottomWidth, containerHeight, yRotation, true, 20);
 var c4 = rsr.cylinder(x+140*3, y, topWidth, bottomWidth, containerHeight, yRotation, true, 50);
 
-//c1.animate({content: 20});
+c1.animate({content: 14});
+c3.animate({content: 70});
+c4.animate({content: 28});
 
 
 var workspace = rsr.rect(0,0, 550, 150);

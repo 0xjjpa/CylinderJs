@@ -41,9 +41,24 @@
         self.leftLinePathY = self.y+self.containerHeight-self.percentageContent;
       }
 
+      this.getTopCx = function() { return self.x }
+      this.getTopCy = function() { return self.y+self.containerHeight-self.percentageContent }
+      this.getTopRx = function() { return self.getTopContentWidth()-(self.getTopContentWidth()*self.padding) }
+      this.getTopRy = function() { return self.getTopContentRy()-(self.getTopContentRy()*self.padding*2) }
+
+      this.getPathMatrixForContainer = function() {
+        return [
+          ["M", self.startPointInX, self.startPointInY],
+          ["L", self.topLinePathX, self.topLinePathY],
+          ["L", self.rightLinePathX, self.rightLinePathY],
+          ["L", self.bottomLinePathX, self.bottomLinePathY],
+          ["L", self.leftLinePathX, self.leftLinePathY]
+        ];
+      }
+
       this.drawTop = function() {
         self.topElement = this.paper.ellipse(
-          self.x, self.y+self.containerHeight-self.percentageContent, self.getTopContentWidth()-(self.getTopContentWidth()*self.padding), self.getTopContentRy()-(self.getTopContentRy()*self.padding*2)
+          self.getTopCx(), self.getTopCy(), self.getTopRx(), self.getTopRy() 
         ).attr({fill: "rgba(255, 255, 255, .95)","stroke-width": 1});
       }
 
@@ -54,13 +69,7 @@
       }
 
       this.drawContainer = function() {
-        self.containerElement = this.paper.path([
-          ["M", self.startPointInX, self.startPointInY],
-          ["L", self.topLinePathX, self.topLinePathY],
-          ["L", self.rightLinePathX, self.rightLinePathY],
-          ["L", self.bottomLinePathX, self.bottomLinePathY],
-          ["L", self.leftLinePathX, self.leftLinePathY]
-        ]);
+        self.containerElement = this.paper.path(this.getPathMatrixForContainer());
       }
 
       this.constructPoints();
@@ -176,38 +185,39 @@
     Content.prototype = self;
     Content.prototype.constructor = Content;
 
-    this.container = new Container();
+    // Instance
+    var cylinder = {};
 
-    this.container.drawContainer();
-    this.container.drawBase();
+    cylinder.container = new Container();
 
-
-
-    //this.content = new Content(paper, this.x, this.y, this.getTopContentWidth(), this.bottomWidth, this.containerHeight, this.percentageContent, this.padding);
+    cylinder.container.drawContainer();
+    cylinder.container.drawBase();
 
     if(this.hasContent) {
-      this.content = new Content();
+      cylinder.content = new Content();
 
       //y = y - padding*10;
 
-      this.content.drawContainer();
-      this.content.drawBase();
-      this.content.drawTop();
+      cylinder.content.drawContainer();
+      cylinder.content.drawBase();
+      cylinder.content.drawTop();
       
     } 
 
-    this.container.drawTop();
+    cylinder.container.drawTop();
     
-
-    /*
     cylinder.animate = function(animationSettings) {
       if(!animationSettings) return;
       if(animationSettings['content']) {
-        var newContent = animationSettings['content']
-        topContent.animate({cy: y+containerHeight-newContent}, 2000);
+        var newContent = animationSettings['content'];
+        var content = this.content;        
+        self.percentageContent = newContent;
+        content.constructPoints();
+        content.containerElement.animate({path: content.getPathMatrixForContainer().join(',')}, 2000)
+        content.topElement.animate({cx: content.getTopCx(), cy: content.getTopCy(), rx: content.getTopRx(), ry: content.getTopRy()}, 2000)
       }
     }
-    */
+
 
     return cylinder;
   }
