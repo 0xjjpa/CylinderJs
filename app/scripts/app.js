@@ -10,12 +10,12 @@ var topWidth = 55;
 var bottomWidth = 40;
 var yRotation = 40; // Done
 
-var c1 = rsr.cylinder(x, y, topWidth, bottomWidth, containerHeight, yRotation, true, 100);
+var c1 = rsr.cylinder(x, y, topWidth, bottomWidth, containerHeight, yRotation, true, 90);
 var c2 = rsr.cylinder(x+140, y, topWidth, bottomWidth, containerHeight, yRotation, false, 20);
 var c3 = rsr.cylinder(x+140*2, y, topWidth, bottomWidth, containerHeight, yRotation, true, 20);
 var c4 = rsr.cylinder(x+140*3, y, topWidth, bottomWidth, containerHeight, yRotation, true, 50);
 
-
+//c1.animate({content: 20});
 
 
 var workspace = rsr.rect(0,0, 550, 150);

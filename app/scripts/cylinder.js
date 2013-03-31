@@ -10,11 +10,8 @@
  */
 
  (function () {
-  function Cylinder(paper, x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent) {
+  function Cylinder(paper, x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent, padding) {
     if(!paper) return;
-
-    x = x || 0;
-    y = y || 0;
 
     if(!topWidth) {
       throw new Error('A top width needs to be provided');
@@ -24,88 +21,197 @@
       throw new Error('A container height needs to be provided');
     }
 
-    //var t = topWidth;
-    //topWidth = topWidth > bottomWidth ? topWidth : bottomWidth;
-    //bottomWidth = topWidth > bottomWidth ? topWidth : topWidth;
+    function Content() {
+      var self = this;
+      this.containerElement = null;
+      this.topElement = null;
+      this.baseElement = null;
 
-    yRotation = +yRotation;
-    yRotation = yRotation > 100 ? yRotation%100 : yRotation;
-    yRotation = yRotation > 0 ? yRotation/100 : 1/100;
-    yRotation = topWidth < bottomWidth ? yRotation*topWidth : yRotation*bottomWidth;
-    console.log(yRotation)
+      this.constructPoints = function() {
+        var topContentWidth = self.getTopContentWidth();
+        self.startPointInX = self.x-topContentWidth+(topContentWidth*self.padding);
+        self.startPointInY = self.y+self.containerHeight-self.percentageContent;
+        self.topLinePathX = self.x+topContentWidth-(topContentWidth*self.padding);
+        self.topLinePathY = self.y+self.containerHeight-self.percentageContent;
+        self.rightLinePathX = self.x+self.bottomWidth-(self.bottomWidth*self.padding);
+        self.rightLinePathY = self.y+self.containerHeight;
+        self.bottomLinePathX = self.x-self.bottomWidth+(self.bottomWidth*self.padding);
+        self.bottomLinePathY = self.y+self.containerHeight;
+        self.leftLinePathX = self.x-topContentWidth+(topContentWidth*self.padding);
+        self.leftLinePathY = self.y+self.containerHeight-self.percentageContent;
+      }
 
-    var padding = .10;
-    var ellipsesDifference = topWidth > bottomWidth ? topWidth - bottomWidth : bottomWidth - topWidth;
+      this.drawTop = function() {
+        self.topElement = this.paper.ellipse(
+          self.x, self.y+self.containerHeight-self.percentageContent, self.getTopContentWidth()-(self.getTopContentWidth()*self.padding), self.getTopContentRy()-(self.getTopContentRy()*self.padding*2)
+        ).attr({fill: "rgba(255, 255, 255, .95)","stroke-width": 1});
+      }
 
-    var cylinder = paper.set();
+      this.drawBase = function() {
+        self.baseElement = this.paper.ellipse(
+          self.x, self.y+self.containerHeight, self.bottomWidth-(self.bottomWidth*self.padding), self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2)
+        ).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
+      }
+
+      this.drawContainer = function() {
+        self.containerElement = this.paper.path([
+          ["M", self.startPointInX, self.startPointInY],
+          ["L", self.topLinePathX, self.topLinePathY],
+          ["L", self.rightLinePathX, self.rightLinePathY],
+          ["L", self.bottomLinePathX, self.bottomLinePathY],
+          ["L", self.leftLinePathX, self.leftLinePathY]
+        ]);
+      }
+
+      this.constructPoints();
+    }
     
-    var container = paper.path([
-      ["M", x-topWidth, y],
-      ["L", x+topWidth, y],
-      ["L", x+bottomWidth, y+containerHeight],
-      ["L", x-bottomWidth, y+containerHeight],
-      ["L", x-topWidth, y]
-      ]).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
+    function Container() {
+      var self = this;
+      this.containerElement = null;
+      this.topElement = null;
+      this.baseElement = null;
+      
+      this.constructPoints = function() {
+        self.startPointInX = self.x-self.topWidth;
+        self.startPointInY = self.y;
+        self.topLinePathX = self.x+self.topWidth;
+        self.topLinePathY = self.y;
+        self.rightLinePathX = self.x+self.bottomWidth;
+        self.rightLinePathY = self.y+self.containerHeight;
+        self.bottomLinePathX = self.x-self.bottomWidth;
+        self.bottomLinePathY = self.y+self.containerHeight;
+        self.leftLinePathX = self.x-self.topWidth;
+        self.leftLinePathY = self.y;
+      }
 
-    if (topWidth < bottomWidth) {
-      topRy = topWidth*yRotation/bottomWidth;
-      baseRy = yRotation;
-    } else {
-      topRy = yRotation;
-      baseRy = bottomWidth*yRotation/topWidth;
+      this.drawTop = function() {
+        self.topElement = this.paper.ellipse(
+          self.x, self.y, self.topWidth, self.getTopRy()
+        ).attr({fill: "rgba(255, 255, 255, .95)","stroke-width": 1});
+      }
+
+      this.drawBase = function() {
+        self.baseElement = this.paper.ellipse(
+          self.x, self.y+self.containerHeight, self.bottomWidth, self.getBaseRy()
+        ).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
+      }
+
+      this.drawContainer = function() {
+        self.containerElement = this.paper.path([
+          ["M", self.startPointInX, self.startPointInY],
+          ["L", self.topLinePathX, self.topLinePathY],
+          ["L", self.rightLinePathX, self.rightLinePathY],
+          ["L", self.bottomLinePathX, self.bottomLinePathY],
+          ["L", self.leftLinePathX, self.leftLinePathY]
+        ]);
+      }
+
+      this.constructPoints();
     }
 
-    var base = paper.ellipse(x, y+containerHeight, bottomWidth, baseRy).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
-    var top = paper.ellipse(x, y, topWidth, topRy).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
-    
+    var self = this;
 
-    cylinder.push(top);
-    cylinder.push(container);
-    cylinder.push(base);
+    // Methods that retrieve information from properties
+    self.isTopSmallerThanBottom = function() {
+      return self.topWidth < self.bottomWidth;
+    }
 
-    if(hasContent && percentageContent) {
-      percentageContent = +percentageContent;
-      percentageContent = percentageContent > 100 ? percentageContent%100 : percentageContent;
-      percentageContent = percentageContent > 0 ? percentageContent*containerHeight/100 : 1*containerHeight/100;
+    self.ellipsesDifference = function() {
+      return self.isTopSmallerThanBottom() ? self.bottomWidth - self.topWidth : self.topWidth - self.bottomWidth;
+    }
 
-      var angle = Math.atan(ellipsesDifference/containerHeight);
+    self.getTopRy = function() {
+      return self.isTopSmallerThanBottom() ? self.topWidth*self.yRotation/self.bottomWidth : self.yRotation; 
+    };
 
-      if (topWidth < bottomWidth) {
-        var topContentWidth = ((containerHeight-percentageContent)*Math.tan(angle))+topWidth;
-      } else {
-        var topContentWidth = (percentageContent*Math.tan(angle))+bottomWidth;
-      }
+    self.getBaseRy = function() {
+      return self.isTopSmallerThanBottom() ? self.yRotation : self.bottomWidth*self.yRotation/self.topWidth;
+    };
 
-      y = y - padding*10;
+    self.getCylinderAngle = function() {
+      return Math.atan(self.ellipsesDifference()/self.containerHeight);
+    }
 
-      var content = paper.path([
-        ["M", x-topContentWidth+(topContentWidth*padding), y+containerHeight-percentageContent],
-        ["L", x+topContentWidth-(topContentWidth*padding), y+containerHeight-percentageContent],
-        ["L", x+bottomWidth-(bottomWidth*padding), y+containerHeight],
-        ["L", x-bottomWidth+(bottomWidth*padding), y+containerHeight],
-        ["L", x-topContentWidth+(topContentWidth*padding), y+containerHeight-percentageContent]
-        ]).attr({fill: "rgba(5, 62, 123, .1)","stroke-width": 1});
+    self.getTopContentWidth = function() {
+      return self.isTopSmallerThanBottom() ? ((self.containerHeight-self.percentageContent)*Math.tan(self.getCylinderAngle()))+self.topWidth : (self.percentageContent*Math.tan(self.getCylinderAngle()))+self.bottomWidth;
+    }
 
-      if (topWidth < bottomWidth) {
-        topContentRy = topContentWidth*yRotation/bottomWidth;
-        baseContentRy = yRotation;
-      } else {
-        topContentRy = yRotation;
-        baseContentRy = bottomWidth*yRotation/topWidth;
-      }
+    self.getTopContentRy = function() {
+      return self.isTopSmallerThanBottom() ? self.topContentWidth*self.yRotation/self.bottomWidth : self.yRotation;
+    }
 
-      var baseContent = rsr.ellipse(x, y+containerHeight, bottomWidth-(bottomWidth*padding), baseContentRy-(baseContentRy*padding*2)).attr({fill: "rgba(220, 235, 241, 1)","stroke-width": 1});
-      var topContent = rsr.ellipse(x, y+containerHeight-percentageContent, topContentWidth-(topContentWidth*padding), topContentRy-(topContentRy*padding*2)).attr({fill: "rgba(220, 235, 241, 1)","stroke-width": 1});
+    self.getBaseContentRy = function() {
+      return self.isTopSmallerThanBottom() ? self.yRotation : self.bottomWidth*self.yRotation/self.topWidth;
+    }
+
+    // Public Properties
+    this.paper = paper;
+    this.x = x || 0,
+    this.y = y || 0,
+    this.padding = padding || .10;
+    this.topWidth = topWidth;
+    this.bottomWidth = bottomWidth;
+    this.containerHeight = containerHeight;
+    this.yRotation = (function(yr) {
+      yr = +yr;
+      yr = yr > 100 ? yr%100 : yr;
+      yr = yr > 0 ? yr/100 : 1/100;
+      yr = self.isTopSmallerThanBottom() ? yr*self.topWidth : yr*self.bottomWidth;
+      return yr;
+    })(yRotation);
+
+    this.hasContent = hasContent && percentageContent ? hasContent : false;
+    this.percentageContent = this.hasContent ? (function(pc){
+      pc = +pc;
+      pc = pc > 100 ? pc%100 : pc;
+      pc = pc > 0 ? pc*self.containerHeight/100 : 1*self.containerHeight/100;
+      return pc;
+    })(percentageContent) : null;
+
+    // Inheritance
+    Container.prototype = self;
+    Container.prototype.constructor = Container;
+
+    Content.prototype = self;
+    Content.prototype.constructor = Content;
+
+    this.container = new Container();
+
+    this.container.drawContainer();
+    this.container.drawBase();
+
+
+
+    //this.content = new Content(paper, this.x, this.y, this.getTopContentWidth(), this.bottomWidth, this.containerHeight, this.percentageContent, this.padding);
+
+    if(this.hasContent) {
+      this.content = new Content();
+
+      //y = y - padding*10;
+
+      this.content.drawContainer();
+      this.content.drawBase();
+      this.content.drawTop();
       
     } 
+
+    this.container.drawTop();
+    
+
+    /*
+    cylinder.animate = function(animationSettings) {
+      if(!animationSettings) return;
+      if(animationSettings['content']) {
+        var newContent = animationSettings['content']
+        topContent.animate({cy: y+containerHeight-newContent}, 2000);
+      }
+    }
+    */
 
     return cylinder;
   }
 
-  //inheritance
-  var F = function() {};
-  F.prototype = Raphael.g;
-  Cylinder.prototype = new F;
 
   //public
   Raphael.fn.cylinder = function(x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent) {
