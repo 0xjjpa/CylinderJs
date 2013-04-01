@@ -59,13 +59,13 @@
       this.drawTop = function() {
         self.topElement = this.paper.ellipse(
           self.getTopCx(), self.getTopCy(), self.getTopRx(), self.getTopRy() 
-        ).attr({fill: "rgba(255, 255, 255, .95)","stroke-width": 1});
+        );
       }
 
       this.drawBase = function() {
         self.baseElement = this.paper.ellipse(
           self.x, self.y+self.containerHeight, self.bottomWidth-(self.bottomWidth*self.padding), self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2)
-        ).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
+        );
       }
 
       this.drawContainer = function() {
@@ -147,10 +147,11 @@
     }
 
     self.getTopContentRy = function() {
-      return self.isTopSmallerThanBottom() ? self.topContentWidth*self.yRotation/self.bottomWidth : self.yRotation;
+      return self.isTopSmallerThanBottom() ? self.getTopContentWidth()*self.yRotation/self.bottomWidth : self.yRotation;
     }
 
     self.getBaseContentRy = function() {
+      console.log(self.yRotation);
       return self.isTopSmallerThanBottom() ? self.yRotation : self.bottomWidth*self.yRotation/self.topWidth;
     }
 
@@ -170,7 +171,7 @@
       return yr;
     })(yRotation);
 
-    this.hasContent = hasContent && percentageContent ? hasContent : false;
+    this.hasContent = hasContent && (percentageContent || +percentageContent >=0) ? hasContent : false;
     this.percentageContent = this.hasContent ? (function(pc){
       pc = +pc;
       pc = pc > 100 ? pc%100 : pc;
@@ -209,12 +210,29 @@
     cylinder.animate = function(animationSettings) {
       if(!animationSettings) return;
       if(animationSettings['content']) {
-        var newContent = animationSettings['content'];
-        var content = this.content;        
-        self.percentageContent = newContent;
-        content.constructPoints();
-        content.containerElement.animate({path: content.getPathMatrixForContainer().join(',')}, 2000)
-        content.topElement.animate({cx: content.getTopCx(), cy: content.getTopCy(), rx: content.getTopRx(), ry: content.getTopRy()}, 2000)
+        var settingsForContent = animationSettings['content'];
+        if(settingsForContent['percentage']|| +settingsForContent['percentage'] >= 0) {
+          var newPercentage = settingsForContent['percentage'];
+          var content = this.content;        
+          self.percentageContent = newPercentage;
+          content.constructPoints();
+          content.containerElement.animate({path: content.getPathMatrixForContainer().join(',')}, 2000)
+          content.topElement.animate({cx: content.getTopCx(), cy: content.getTopCy(), rx: content.getTopRx(), ry: content.getTopRy()}, 2000)
+        }
+      }
+    }
+
+    cylinder.attr = function(attrSettings) {
+      if(!attrSettings) return;
+      if(attrSettings['content']) {
+        var settingsForContent = attrSettings['content'];
+        if(settingsForContent['fill']) {
+          var newFill = settingsForContent['fill'];
+          var content = this.content;
+          content.topElement.attr({fill: newFill});
+          content.baseElement.attr({fill: newFill});
+          content.containerElement.attr({fill: newFill});
+        }
       }
     }
 
