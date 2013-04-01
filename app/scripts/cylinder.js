@@ -49,9 +49,9 @@
       this.getPathMatrixForContainer = function() {
         return [
           ["M", self.startPointInX, self.startPointInY],
-          ["L", self.topLinePathX, self.topLinePathY],
+          ["A", self.getTopRx(), self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
           ["L", self.rightLinePathX, self.rightLinePathY],
-          ["L", self.bottomLinePathX, self.bottomLinePathY],
+          ["A", self.bottomWidth-(self.bottomWidth*self.padding), self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
           ["L", self.leftLinePathX, self.leftLinePathY]
         ];
       }
@@ -97,21 +97,21 @@
       this.drawTop = function() {
         self.topElement = this.paper.ellipse(
           self.x, self.y, self.topWidth, self.getTopRy()
-        ).attr({fill: "rgba(255, 255, 255, .95)","stroke-width": 1});
+        );
       }
 
       this.drawBase = function() {
         self.baseElement = this.paper.ellipse(
           self.x, self.y+self.containerHeight, self.bottomWidth, self.getBaseRy()
-        ).attr({fill: "rgba(255, 255, 255, 1)","stroke-width": 1});
+        );
       }
 
       this.drawContainer = function() {
         self.containerElement = this.paper.path([
           ["M", self.startPointInX, self.startPointInY],
-          ["L", self.topLinePathX, self.topLinePathY],
+          ["A", self.topWidth, self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
           ["L", self.rightLinePathX, self.rightLinePathY],
-          ["L", self.bottomLinePathX, self.bottomLinePathY],
+          ["A", self.bottomWidth, self.getBaseRy(), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
           ["L", self.leftLinePathX, self.leftLinePathY]
         ]);
       }
@@ -151,7 +151,6 @@
     }
 
     self.getBaseContentRy = function() {
-      console.log(self.yRotation);
       return self.isTopSmallerThanBottom() ? self.yRotation : self.bottomWidth*self.yRotation/self.topWidth;
     }
 
@@ -209,22 +208,32 @@
     
     cylinder.animate = function(animationSettings) {
       if(!animationSettings) return;
-      if(animationSettings['content']) {
-        var settingsForContent = animationSettings['content'];
+      if(animationSettings['content'] && this.content) {
+        var settingsForContent = animationSettings['content'],
+          animationObjectForContainer = {};
+          animationObjectForTop = {}
+
+        var content = this.content;
         if(settingsForContent['percentage']|| +settingsForContent['percentage'] >= 0) {
           var newPercentage = settingsForContent['percentage'];
-          var content = this.content;        
           self.percentageContent = newPercentage;
+
           content.constructPoints();
-          content.containerElement.animate({path: content.getPathMatrixForContainer().join(',')}, 2000)
-          content.topElement.animate({cx: content.getTopCx(), cy: content.getTopCy(), rx: content.getTopRx(), ry: content.getTopRy()}, 2000)
+          animationObjectForContainer['path'] = content.getPathMatrixForContainer().join(',');
+          animationObjectForTop['cx'] = content.getTopCx();
+          animationObjectForTop['cy'] = content.getTopCy();
+          animationObjectForTop['rx'] = content.getTopRx();
+          animationObjectForTop['ry'] = content.getTopRy();
         }
+
+        content.containerElement.animate(animationObjectForContainer, settingsForContent['ms'] || 2000)
+        content.topElement.animate(animationObjectForTop, settingsForContent['ms'] || 2000)
       }
     }
 
     cylinder.attr = function(attrSettings) {
       if(!attrSettings) return;
-      if(attrSettings['content']) {
+      if(attrSettings['content'] && this.content) {
         var settingsForContent = attrSettings['content'];
         if(settingsForContent['fill']) {
           var newFill = settingsForContent['fill'];
@@ -242,8 +251,8 @@
 
 
   //public
-  Raphael.fn.cylinder = function(x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent) {
-    return new Cylinder(this, x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent);
+  Raphael.fn.cylinder = function(x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent, padding) {
+    return new Cylinder(this, x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent, padding);
   }
 
 })();
