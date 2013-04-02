@@ -27,6 +27,11 @@
       this.topElement = null;
       this.baseElement = null;
 
+      this.update = function() {
+        self.constructPoints();
+        self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy()});
+      }
+
       this.constructPoints = function() {
         var topContentWidth = self.getTopContentWidth();
         self.startPointInX = self.x-topContentWidth+(topContentWidth*self.padding);
@@ -212,6 +217,7 @@
         var settingsForContent = animationSettings['content'],
           animationObjectForContainer = {};
           animationObjectForTop = {}
+          animationObjectForBase = {}
 
         var content = this.content;
         if(settingsForContent['percentage']|| +settingsForContent['percentage'] >= 0) {
@@ -226,8 +232,16 @@
           animationObjectForTop['ry'] = content.getTopRy();
         }
 
+        if(settingsForContent['fill']){
+          var newColor = settingsForContent['fill'];
+          animationObjectForContainer['fill'] = newColor;
+          animationObjectForTop['fill'] = newColor;
+          animationObjectForBase['fill'] = newColor;
+        }
+
         content.containerElement.animate(animationObjectForContainer, settingsForContent['ms'] || 2000)
         content.topElement.animate(animationObjectForTop, settingsForContent['ms'] || 2000)
+        content.baseElement.animate(animationObjectForBase, settingsForContent['ms'] || 2000)
       }
     }
 
@@ -243,6 +257,29 @@
           content.containerElement.attr({fill: newFill});
         }
       }
+    }
+
+    var start = function() {
+      console.log("START")
+      //this.animate({fill: "red"});
+    }
+
+    var move = function(dx, dy) {
+      this.x = dx;
+      this.y = dy;
+      this.update();
+      console.log("MOVE");
+    }
+
+    var up = function() {
+     //this.animate({fill: "blue"}); 
+     console.log("UP");
+    }
+
+
+    cylinder.draggable = function() {
+      var content = this.content;
+      content.topElement.drag(move, start, up, content)
     }
 
 
