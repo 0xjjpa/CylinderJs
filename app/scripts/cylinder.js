@@ -95,6 +95,8 @@
       this.update = function() {
         self.constructPoints();
         self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy() });
+        self.baseElement.attr({cx: self.getBaseCx(), cy: self.getBaseCy(), rx: self.getBaseRx(), ry: self.getBaseRy() });
+        self.containerElement.attr({path: self.getPathMatrixForContainer() });
       }
       
       this.constructPoints = function() {
@@ -113,6 +115,19 @@
       this.getTopCx = function() { return self.x }
       this.getTopCy = function() { return self.y }
       this.getTopRx = function() { return self.topWidth }
+      this.getBaseCx = function() { return self.x }
+      this.getBaseCy = function() { return self.y+self.containerHeight }
+      this.getBaseRx = function() { return self.bottomWidth }
+
+      this.getPathMatrixForContainer = function() {
+        return [
+          ["M", self.startPointInX, self.startPointInY],
+          ["A", self.topWidth, self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
+          ["L", self.rightLinePathX, self.rightLinePathY],
+          ["A", self.bottomWidth, self.getBaseRy(), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
+          ["L", self.leftLinePathX, self.leftLinePathY]
+        ];
+      }
 
       this.drawTop = function() {
         self.topElement = this.paper.ellipse(
@@ -127,13 +142,7 @@
       }
 
       this.drawContainer = function() {
-        self.containerElement = this.paper.path([
-          ["M", self.startPointInX, self.startPointInY],
-          ["A", self.topWidth, self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
-          ["L", self.rightLinePathX, self.rightLinePathY],
-          ["A", self.bottomWidth, self.getBaseRy(), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
-          ["L", self.leftLinePathX, self.leftLinePathY]
-        ]);
+        self.containerElement = this.paper.path(self.getPathMatrixForContainer());
       }
 
       this.constructPoints();
@@ -274,6 +283,10 @@
       }
     }
 
+    self.updateElements = function(cylinderInstance) {
+      cylinderInstance.content.update();
+      cylinderInstance.container.update();
+    }
     
 
     var start = function() {
@@ -283,11 +296,9 @@
     }
 
     var move = function(dx, dy) {
-      console.log(this);
-      this.x = this.ox + dx;
-      this.y = this.oy + dy;      
-      this.update();
-      console.log("MOVE");
+      self.x = this.ox + dx;
+      self.y = this.oy + dy;      
+      this.updateElements(cylinder);
     }
 
     var up = function() {
@@ -295,7 +306,6 @@
     }
 
     self.drag = function(start, move, up) {
-      console.log(this)
         this.containerElement.drag(start, move, up, this);
         this.topElement.drag(start, move, up, this);
         this.baseElement.drag(start, move, up, this);
