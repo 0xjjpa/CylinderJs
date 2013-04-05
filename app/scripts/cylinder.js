@@ -30,6 +30,8 @@
       this.update = function() {
         self.constructPoints();
         self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy()});
+        self.baseElement.attr({cx: self.getBaseCx(), cy: self.getBaseCy(), rx: self.getBaseRx(), ry: self.getBaseRy()});
+        self.containerElement.attr({path: self.getPathMatrixForContainer() });
       }
 
       this.constructPoints = function() {
@@ -50,6 +52,10 @@
       this.getTopCy = function() { return self.y+self.containerHeight-self.percentageContent }
       this.getTopRx = function() { return self.getTopContentWidth()-(self.getTopContentWidth()*self.padding) }
       this.getTopRy = function() { return self.getTopContentRy()-(self.getTopContentRy()*self.padding*2) }
+      this.getBaseCx = function() { return self.x }
+      this.getBaseCy = function() { return self.y+self.containerHeight }
+      this.getBaseRx = function() { return self.bottomWidth-(self.bottomWidth*self.padding) }
+      this.getBaseRy = function() { return self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2) }
 
       this.getPathMatrixForContainer = function() {
         return [
@@ -69,7 +75,7 @@
 
       this.drawBase = function() {
         self.baseElement = this.paper.ellipse(
-          self.x, self.y+self.containerHeight, self.bottomWidth-(self.bottomWidth*self.padding), self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2)
+          self.getBaseCx(), self.getBaseCy(), self.getBaseRx(), self.getBaseRy()
         );
       }
 
@@ -85,6 +91,11 @@
       this.containerElement = null;
       this.topElement = null;
       this.baseElement = null;
+
+      this.update = function() {
+        self.constructPoints();
+        self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy() });
+      }
       
       this.constructPoints = function() {
         self.startPointInX = self.x-self.topWidth;
@@ -99,9 +110,13 @@
         self.leftLinePathY = self.y;
       }
 
+      this.getTopCx = function() { return self.x }
+      this.getTopCy = function() { return self.y }
+      this.getTopRx = function() { return self.topWidth }
+
       this.drawTop = function() {
         self.topElement = this.paper.ellipse(
-          self.x, self.y, self.topWidth, self.getTopRy()
+          self.getTopCx(), self.getTopCy(), self.getTopRx(), self.getTopRy()
         );
       }
 
@@ -259,27 +274,36 @@
       }
     }
 
+    
+
     var start = function() {
-      console.log("START")
-      //this.animate({fill: "red"});
+      console.log("START");
+      this.ox = this.x;
+      this.oy = this.y;
     }
 
     var move = function(dx, dy) {
-      this.x = dx;
-      this.y = dy;
+      console.log(this);
+      this.x = this.ox + dx;
+      this.y = this.oy + dy;      
       this.update();
       console.log("MOVE");
     }
 
     var up = function() {
-     //this.animate({fill: "blue"}); 
      console.log("UP");
     }
 
+    self.drag = function(start, move, up) {
+      console.log(this)
+        this.containerElement.drag(start, move, up, this);
+        this.topElement.drag(start, move, up, this);
+        this.baseElement.drag(start, move, up, this);
+      }
 
     cylinder.draggable = function() {
-      var content = this.content;
-      content.topElement.drag(move, start, up, content)
+      this.content.drag(move, start, up, this.content)
+      this.container.drag(move, start, up, this.container)
     }
 
 
