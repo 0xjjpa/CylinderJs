@@ -19,12 +19,22 @@ var c8 = rsr.cylinder(x+140*3, y+140, topWidth-15, bottomWidth, containerHeight,
 var c9 = rsr.cylinder(x-40, y+280, topWidth-45, bottomWidth-30, containerHeight, yRotation, true, 30, .25);
 var c10 = rsr.cylinder(x, y+280, topWidth-45, bottomWidth-30, containerHeight, yRotation, true, 60, .25);
 var c11 = rsr.cylinder(x+40, y+280, topWidth-45, bottomWidth-30, containerHeight, yRotation, true, 40, .25);
-var c12 = rsr.cylinder(x+140, y+280, topWidth-45, bottomWidth, containerHeight, yRotation*0, true, 50);
+var c12 = rsr.cylinder(x+140, y+280, topWidth-45, bottomWidth, containerHeight, yRotation+60, true, 50);
 var c13 = rsr.cylinder(x+140*2, y+280, topWidth-15, bottomWidth, containerHeight, yRotation, true, 50, .25);
 var c14 = rsr.cylinder(x+140*3, y+280, topWidth-15, bottomWidth-25, containerHeight, yRotation+60, true, 50, .23);
 
 
-c1.attr({content: {fill: "rgba(232, 0, 122, .2)"}})
+c1.attr(
+  {
+    content: {
+      fill: "rgba(232, 0, 122, .2)"
+    },
+    container: {
+      topWidth: 50
+    }
+  }
+);
+
 c2.attr({content: {fill: "rgb(0, 0, 255)"}})
 c3.attr({content: {fill: "rgb(212, 255, 0)"}})
 c4.attr({content: {fill: "rgb(73, 240, 159)"}})
@@ -38,12 +48,20 @@ c12.attr({content: {fill: "rgb(90, 90, 137)"}})
 c13.attr({content: {fill: "rgb(200, 46, 28)"}})
 c14.attr({content: {fill: "rgb(90, 190, 12)"}})
 
-c1.animate({content: {percentage: 60, ms: 1000}});
+c1.animate({content: {percentage: 20, ms: 1000}});
 c2.animate({content: {percentage: 20, fill: "rgba(255,0,0)", ms: 10000}});
 c3.animate({content: {fill: "rgb(0,0,0)"}});
 c4.animate({content: {percentage: 10}});
 
 c1.draggable();
+c1.transferable();
+c5.draggable();
+
+/*
+Volumen
+Transfer Content
+Join Cylinders
+*/
 
 
 
