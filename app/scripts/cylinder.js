@@ -24,51 +24,79 @@
     var self = this;
 
     // Methods that retrieve information from properties
-    self.isTopSmallerThanBottom = function() {
+    this.isTopSmallerThanBottom = function() {
       return self.topWidth < self.bottomWidth;
     }
 
-    self.ellipsesDifference = function() {
+    this.ellipsesDifference = function() {
       return self.isTopSmallerThanBottom() ? self.bottomWidth - self.topWidth : self.topWidth - self.bottomWidth;
     }
 
-    self.getTopRy = function() {
+    this.getTopRy = function() {
       return self.isTopSmallerThanBottom() ? self.topWidth*self.yRotation/self.bottomWidth : self.yRotation; 
     };
 
-    self.getBaseRy = function() {
+    this.getBaseRy = function() {
       return self.isTopSmallerThanBottom() ? self.yRotation : self.bottomWidth*self.yRotation/self.topWidth;
     };
 
-    self.getCylinderAngle = function() {
+    this.getCylinderAngle = function() {
       return Math.atan(self.ellipsesDifference()/self.containerHeight);
     }
 
-    self.getTopContentWidth = function() {
+    this.getTopContentWidth = function() {
       return self.isTopSmallerThanBottom() ? ((self.containerHeight-self.percentageContent)*Math.tan(self.getCylinderAngle()))+self.topWidth : (self.percentageContent*Math.tan(self.getCylinderAngle()))+self.bottomWidth;
     }
 
-    self.getTopContentRy = function() {
+    this.getTopContentRy = function() {
       return self.isTopSmallerThanBottom() ? self.getTopContentWidth()*self.yRotation/self.bottomWidth : self.yRotation;
     }
 
-    self.getBaseContentRy = function() {
+    this.getBaseContentRy = function() {
       return self.isTopSmallerThanBottom() ? self.yRotation : self.bottomWidth*self.yRotation/self.topWidth;
     }
 
-    self.updateElements = function(cylinderInstance) {
+    this.updateElements = function(cylinderInstance) {
       cylinderInstance.content.update();
       cylinderInstance.container.update();
     }
 
-    self.drag = function(start, move, up) {
+    this.drag = function(start, move, up) {
       this.containerElement.drag(start, move, up, this);
       this.topElement.drag(start, move, up, this);
       this.baseElement.drag(start, move, up, this);
     }
 
+    this.transfer = function(transfuser, receiver) {
+      console.log("TRANSFER TIME!");
+      var toTransfer = +transfuser.percentageContent;
+      var newPercentageContent = +receiver.percentageContent + toTransfer;
+      Cylinder.prototype.cylinders[0].animate({content: {percentage: 0}});
+      Cylinder.prototype.cylinders[1].animate({content: {percentage: newPercentageContent}});
+
+    }
+
     var start = function() {
-      console.log(this.instanceof === "Container");
+      if(this.instanceof !== "Content") {        
+        this.parent.onMouseDown();
+        if(Cylinder.prototype.selectedTarget === this.parent) {
+          // Same container
+          delete Cylinder.prototype.selectedTarget;
+          this.parent.onMouseUp();
+        } else {
+          // Other container
+          var otherContainer = Cylinder.prototype.selectedTarget;
+          Cylinder.prototype.selectedTarget = this.parent;
+          if(otherContainer && otherContainer.isTransferable && this.parent.isTransferable) {
+            //// Tra-tra-tra-transfer time.
+            self.transfer(otherContainer, this.parent);
+            otherContainer.onMouseUp();
+            this.parent.onMouseUp();
+            delete Cylinder.prototype.selectedTarget;
+          }
+        }
+      }
+
       this.ox = this.x;
       this.oy = this.y;
     }
@@ -80,7 +108,7 @@
     }
 
     var up = function() {
-      console.log("UP");
+      //if(this.instanceof === "Content") this.onMouseUp();
     }
 
     // Public Properties
@@ -109,7 +137,7 @@
 
     Container.prototype = self;
     Content.prototype = self;
-  
+
     // Instance
     self.cylinder = {};
 
@@ -135,9 +163,9 @@
       if(!animationSettings) return;
       if(animationSettings['content'] && this.content) {
         var settingsForContent = animationSettings['content'],
-          animationObjectForContainer = {};
-          animationObjectForTop = {}
-          animationObjectForBase = {}
+        animationObjectForContainer = {};
+        animationObjectForTop = {}
+        animationObjectForBase = {}
 
         var content = this.content;
         if(settingsForContent['percentage']|| +settingsForContent['percentage'] >= 0) {
@@ -193,7 +221,11 @@
 
     
     self.cylinder.transferable = function() {
-      //this.content.mousedown()
+      if(!Cylinder.prototype.cylinders) {
+        Cylinder.prototype.cylinders = [];
+      }
+      Cylinder.prototype.cylinders.push(this);
+      this.content.isTransferable = true;
     }
 
     self.cylinder.update = function() {
@@ -203,152 +235,169 @@
     
 
     if(self.cylinder.content) {
-      self.cylinder.content.containerElement.mousedown(function(){
-        console.log("CLICKED")
-      })  
+      self.cylinder.content.mousedown(start);
     }
     
     return self.cylinder;
   }
 
   function Content() {
-      var self = this;
-      this.instanceof = "Content";
-      this.containerElement = null;
-      this.topElement = null;
-      this.baseElement = null;
+    var self = this;
+    this.instanceof = "Content";
+    this.containerElement = null;
+    this.topElement = null;
+    this.baseElement = null;
 
-      this.attr = function(attrObject) {
-        self.topElement.attr(attrObject);
-        self.baseElement.attr(attrObject);
-        self.containerElement.attr(attrObject);
-      }
+    this.mousedown = function(start) {
+      self.topElement.mousedown(start);
+      self.baseElement.mousedown(start);
+      self.containerElement.mousedown(start);
+    }
 
-      this.update = function() {
-        self.constructPoints();
-        self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy()});
-        self.baseElement.attr({cx: self.getBaseCx(), cy: self.getBaseCy(), rx: self.getBaseRx(), ry: self.getBaseRy()});
-        self.containerElement.attr({path: self.getPathMatrixForContainer() });
-      }
+    this.onMouseDown = function() {
+      console.log("Bring the opacity");
+      self.attr({opacity: .5});
+    }
 
-      this.constructPoints = function() {
-        var topContentWidth = self.getTopContentWidth();
-        self.startPointInX = self.x-topContentWidth+(topContentWidth*self.padding);
-        self.startPointInY = self.y+self.containerHeight-self.percentageContent;
-        self.topLinePathX = self.x+topContentWidth-(topContentWidth*self.padding);
-        self.topLinePathY = self.y+self.containerHeight-self.percentageContent;
-        self.rightLinePathX = self.x+self.bottomWidth-(self.bottomWidth*self.padding);
-        self.rightLinePathY = self.y+self.containerHeight;
-        self.bottomLinePathX = self.x-self.bottomWidth+(self.bottomWidth*self.padding);
-        self.bottomLinePathY = self.y+self.containerHeight;
-        self.leftLinePathX = self.x-topContentWidth+(topContentWidth*self.padding);
-        self.leftLinePathY = self.y+self.containerHeight-self.percentageContent;
-      }
+    this.onMouseUp = function() {
+      console.log("Put away opacity")
+     self.attr({opacity: 1}); 
+   }
 
-      this.getTopCx = function() { return self.x }
-      this.getTopCy = function() { return self.y+self.containerHeight-self.percentageContent }
-      this.getTopRx = function() { return self.getTopContentWidth()-(self.getTopContentWidth()*self.padding) }
-      this.getTopRy = function() { return self.getTopContentRy()-(self.getTopContentRy()*self.padding*2) }
-      this.getBaseCx = function() { return self.x }
-      this.getBaseCy = function() { return self.y+self.containerHeight }
-      this.getBaseRx = function() { return self.bottomWidth-(self.bottomWidth*self.padding) }
-      this.getBaseRy = function() { return self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2) }
-
-      this.getPathMatrixForContainer = function() {
-        return [
-          ["M", self.startPointInX, self.startPointInY],
-          ["A", self.getTopRx(), self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
-          ["L", self.rightLinePathX, self.rightLinePathY],
-          ["A", self.bottomWidth-(self.bottomWidth*self.padding), self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
-          ["L", self.leftLinePathX, self.leftLinePathY]
-        ];
-      }
-
-      this.drawTop = function() {
-        self.topElement = this.paper.ellipse(
-          self.getTopCx(), self.getTopCy(), self.getTopRx(), self.getTopRy() 
-        );
-      }
-
-      this.drawBase = function() {
-        self.baseElement = this.paper.ellipse(
-          self.getBaseCx(), self.getBaseCy(), self.getBaseRx(), self.getBaseRy()
-        );
-      }
-
-      this.drawContainer = function() {
-        self.containerElement = this.paper.path(this.getPathMatrixForContainer());
-      }
-
-      this.constructPoints();
+   this.attr = function(attrObject) {
+    self.topElement.attr(attrObject);
+    self.baseElement.attr(attrObject);
+    self.containerElement.attr(attrObject);
   }
 
-  function Container() {
-      var self = this;
-      this.instanceof = "Container";
-      this.containerElement = null;
-      this.topElement = null;
-      this.baseElement = null;
-
-      this.update = function() {
-        self.constructPoints();
-        self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy() });
-        self.baseElement.attr({cx: self.getBaseCx(), cy: self.getBaseCy(), rx: self.getBaseRx(), ry: self.getBaseRy() });
-        self.containerElement.attr({path: self.getPathMatrixForContainer() });
-      }
-      
-      this.constructPoints = function() {
-        self.startPointInX = self.x-self.topWidth;
-        self.startPointInY = self.y;
-        self.topLinePathX = self.x+self.topWidth;
-        self.topLinePathY = self.y;
-        self.rightLinePathX = self.x+self.bottomWidth;
-        self.rightLinePathY = self.y+self.containerHeight;
-        self.bottomLinePathX = self.x-self.bottomWidth;
-        self.bottomLinePathY = self.y+self.containerHeight;
-        self.leftLinePathX = self.x-self.topWidth;
-        self.leftLinePathY = self.y;
-      }
-
-      this.getTopCx = function() { return self.x }
-      this.getTopCy = function() { return self.y }
-      this.getTopRx = function() { return self.topWidth }
-      this.getBaseCx = function() { return self.x }
-      this.getBaseCy = function() { return self.y+self.containerHeight }
-      this.getBaseRx = function() { return self.bottomWidth }
-
-      this.getPathMatrixForContainer = function() {
-        return [
-          ["M", self.startPointInX, self.startPointInY],
-          ["A", self.topWidth, self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
-          ["L", self.rightLinePathX, self.rightLinePathY],
-          ["A", self.bottomWidth, self.getBaseRy(), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
-          ["L", self.leftLinePathX, self.leftLinePathY]
-        ];
-      }
-
-      this.drawTop = function() {
-        self.topElement = this.paper.ellipse(
-          self.getTopCx(), self.getTopCy(), self.getTopRx(), self.getTopRy()
-        ).attr({fill: "rgba(255,255,255, 0)"});
-      }
-
-      this.drawBase = function() {
-        self.baseElement = this.paper.ellipse(
-          self.x, self.y+self.containerHeight, self.bottomWidth, self.getBaseRy()
-        ).attr({fill: "rgba(255,255,255, 0)"});
-      }
-
-      this.drawContainer = function() {
-        self.containerElement = this.paper.path(
-          self.getPathMatrixForContainer()
-        ).attr({fill: "rgba(255,255,255, 0)"});
-      }
-
-      this.constructPoints();
+  this.update = function() {
+    self.constructPoints();
+    self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy()});
+    self.baseElement.attr({cx: self.getBaseCx(), cy: self.getBaseCy(), rx: self.getBaseRx(), ry: self.getBaseRy()});
+    self.containerElement.attr({path: self.getPathMatrixForContainer() });
   }
 
-    
+  this.constructPoints = function() {
+    var topContentWidth = self.getTopContentWidth();
+    self.startPointInX = self.x-topContentWidth+(topContentWidth*self.padding);
+    self.startPointInY = self.y+self.containerHeight-self.percentageContent;
+    self.topLinePathX = self.x+topContentWidth-(topContentWidth*self.padding);
+    self.topLinePathY = self.y+self.containerHeight-self.percentageContent;
+    self.rightLinePathX = self.x+self.bottomWidth-(self.bottomWidth*self.padding);
+    self.rightLinePathY = self.y+self.containerHeight;
+    self.bottomLinePathX = self.x-self.bottomWidth+(self.bottomWidth*self.padding);
+    self.bottomLinePathY = self.y+self.containerHeight;
+    self.leftLinePathX = self.x-topContentWidth+(topContentWidth*self.padding);
+    self.leftLinePathY = self.y+self.containerHeight-self.percentageContent;
+  }
+
+  this.getTopCx = function() { return self.x }
+  this.getTopCy = function() { return self.y+self.containerHeight-self.percentageContent }
+  this.getTopRx = function() { return self.getTopContentWidth()-(self.getTopContentWidth()*self.padding) }
+  this.getTopRy = function() { return self.getTopContentRy()-(self.getTopContentRy()*self.padding*2) }
+  this.getBaseCx = function() { return self.x }
+  this.getBaseCy = function() { return self.y+self.containerHeight }
+  this.getBaseRx = function() { return self.bottomWidth-(self.bottomWidth*self.padding) }
+  this.getBaseRy = function() { return self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2) }
+
+  this.getPathMatrixForContainer = function() {
+    return [
+    ["M", self.startPointInX, self.startPointInY],
+    ["A", self.getTopRx(), self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
+    ["L", self.rightLinePathX, self.rightLinePathY],
+    ["A", self.bottomWidth-(self.bottomWidth*self.padding), self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
+    ["L", self.leftLinePathX, self.leftLinePathY]
+    ];
+  }
+
+  this.drawTop = function() {
+    self.topElement = this.paper.ellipse(
+      self.getTopCx(), self.getTopCy(), self.getTopRx(), self.getTopRy() 
+      );
+    self.topElement.parent = self;
+  }
+
+  this.drawBase = function() {
+    self.baseElement = this.paper.ellipse(
+      self.getBaseCx(), self.getBaseCy(), self.getBaseRx(), self.getBaseRy()
+      );
+    self.baseElement.parent = self;
+  }
+
+  this.drawContainer = function() {
+    self.containerElement = this.paper.path(this.getPathMatrixForContainer());
+    self.containerElement.parent = self;
+  }
+
+  this.constructPoints();
+}
+
+function Container() {
+  var self = this;
+  this.instanceof = "Container";
+  this.containerElement = null;
+  this.topElement = null;
+  this.baseElement = null;
+
+  this.update = function() {
+    self.constructPoints();
+    self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy() });
+    self.baseElement.attr({cx: self.getBaseCx(), cy: self.getBaseCy(), rx: self.getBaseRx(), ry: self.getBaseRy() });
+    self.containerElement.attr({path: self.getPathMatrixForContainer() });
+  }
+
+  this.constructPoints = function() {
+    self.startPointInX = self.x-self.topWidth;
+    self.startPointInY = self.y;
+    self.topLinePathX = self.x+self.topWidth;
+    self.topLinePathY = self.y;
+    self.rightLinePathX = self.x+self.bottomWidth;
+    self.rightLinePathY = self.y+self.containerHeight;
+    self.bottomLinePathX = self.x-self.bottomWidth;
+    self.bottomLinePathY = self.y+self.containerHeight;
+    self.leftLinePathX = self.x-self.topWidth;
+    self.leftLinePathY = self.y;
+  }
+
+  this.getTopCx = function() { return self.x }
+  this.getTopCy = function() { return self.y }
+  this.getTopRx = function() { return self.topWidth }
+  this.getBaseCx = function() { return self.x }
+  this.getBaseCy = function() { return self.y+self.containerHeight }
+  this.getBaseRx = function() { return self.bottomWidth }
+
+  this.getPathMatrixForContainer = function() {
+    return [
+    ["M", self.startPointInX, self.startPointInY],
+    ["A", self.topWidth, self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
+    ["L", self.rightLinePathX, self.rightLinePathY],
+    ["A", self.bottomWidth, self.getBaseRy(), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
+    ["L", self.leftLinePathX, self.leftLinePathY]
+    ];
+  }
+
+  this.drawTop = function() {
+    self.topElement = this.paper.ellipse(
+      self.getTopCx(), self.getTopCy(), self.getTopRx(), self.getTopRy()
+      ).attr({fill: "rgba(255,255,255, 0)"});
+  }
+
+  this.drawBase = function() {
+    self.baseElement = this.paper.ellipse(
+      self.x, self.y+self.containerHeight, self.bottomWidth, self.getBaseRy()
+      ).attr({fill: "rgba(255,255,255, 0)"});
+  }
+
+  this.drawContainer = function() {
+    self.containerElement = this.paper.path(
+      self.getPathMatrixForContainer()
+      ).attr({fill: "rgba(255,255,255, 0)"});
+  }
+
+  this.constructPoints();
+}
+
+
 
 
   //public

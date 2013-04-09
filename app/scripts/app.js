@@ -9,7 +9,7 @@ var yRotation = 40;
 
 //cylinder(x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent, padding)
 var c1 = rsr.cylinder(x, y, topWidth, bottomWidth+15, containerHeight, yRotation+10, true, 10, .10);
-var c2 = rsr.cylinder(x+140, y, topWidth, bottomWidth, containerHeight, yRotation+20, true, 10);
+var c2 = rsr.cylinder(x+140, y, topWidth, bottomWidth, containerHeight, yRotation, true, 90);
 var c3 = rsr.cylinder(x+140*2, y, topWidth-40, bottomWidth, containerHeight, yRotation+20, true, 20);
 var c4 = rsr.cylinder(x+140*3, y, topWidth-15, bottomWidth, containerHeight, yRotation, true, 50);
 var c5 = rsr.cylinder(x, y+180, topWidth-30, bottomWidth-20, containerHeight-40, yRotation, true, 50);
@@ -49,13 +49,14 @@ c13.attr({content: {fill: "rgb(200, 46, 28)"}})
 c14.attr({content: {fill: "rgb(90, 190, 12)"}})
 
 c1.animate({content: {percentage: 20, ms: 1000}});
-c2.animate({content: {percentage: 20, fill: "rgba(255,0,0)", ms: 10000}});
+c2.animate({content: {percentage: 40, fill: "rgba(255,0,0)", ms: 1000}});
 c3.animate({content: {fill: "rgb(0,0,0)"}});
 c4.animate({content: {percentage: 10}});
 
 c1.draggable();
-c1.transferable();
-c5.draggable();
+c2.transferable();
+c3.transferable();
+//c5.draggable();
 
 /*
 Volumen
