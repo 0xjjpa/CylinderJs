@@ -24,6 +24,14 @@
     var self = this;
 
     // Methods that retrieve information from properties
+    self.getX = function() {
+      return this.x;
+    }
+
+    self.getY = function() {
+      return this.y;
+    }
+
     this.isTopSmallerThanBottom = function() {
       return self.topWidth < self.bottomWidth;
     }
@@ -232,6 +240,10 @@
       this.content.update();
       this.container.update();
     }
+
+    self.cylinder.joinBottom = function(cylinderInstance) {
+
+    }
     
 
     if(self.cylinder.content) {
@@ -279,24 +291,24 @@
 
   this.constructPoints = function() {
     var topContentWidth = self.getTopContentWidth();
-    self.startPointInX = self.x-topContentWidth+(topContentWidth*self.padding);
-    self.startPointInY = self.y+self.containerHeight-self.percentageContent;
-    self.topLinePathX = self.x+topContentWidth-(topContentWidth*self.padding);
-    self.topLinePathY = self.y+self.containerHeight-self.percentageContent;
-    self.rightLinePathX = self.x+self.bottomWidth-(self.bottomWidth*self.padding);
-    self.rightLinePathY = self.y+self.containerHeight;
-    self.bottomLinePathX = self.x-self.bottomWidth+(self.bottomWidth*self.padding);
-    self.bottomLinePathY = self.y+self.containerHeight;
-    self.leftLinePathX = self.x-topContentWidth+(topContentWidth*self.padding);
-    self.leftLinePathY = self.y+self.containerHeight-self.percentageContent;
+    self.startPointInX = self.getX()-topContentWidth+(topContentWidth*self.padding);
+    self.startPointInY = self.getY()+self.containerHeight-self.percentageContent;
+    self.topLinePathX = self.getX()+topContentWidth-(topContentWidth*self.padding);
+    self.topLinePathY = self.getY()+self.containerHeight-self.percentageContent;
+    self.rightLinePathX = self.getX()+self.bottomWidth-(self.bottomWidth*self.padding);
+    self.rightLinePathY = self.getY()+self.containerHeight;
+    self.bottomLinePathX = self.getX()-self.bottomWidth+(self.bottomWidth*self.padding);
+    self.bottomLinePathY = self.getY()+self.containerHeight;
+    self.leftLinePathX = self.getX()-topContentWidth+(topContentWidth*self.padding);
+    self.leftLinePathY = self.getY()+self.containerHeight-self.percentageContent;
   }
 
-  this.getTopCx = function() { return self.x }
-  this.getTopCy = function() { return self.y+self.containerHeight-self.percentageContent }
+  this.getTopCx = function() { return self.getX() }
+  this.getTopCy = function() { return self.getY()+self.containerHeight-self.percentageContent }
   this.getTopRx = function() { return self.getTopContentWidth()-(self.getTopContentWidth()*self.padding) }
   this.getTopRy = function() { return self.getTopContentRy()-(self.getTopContentRy()*self.padding*2) }
-  this.getBaseCx = function() { return self.x }
-  this.getBaseCy = function() { return self.y+self.containerHeight }
+  this.getBaseCx = function() { return self.getX() }
+  this.getBaseCy = function() { return self.getY()+self.containerHeight }
   this.getBaseRx = function() { return self.bottomWidth-(self.bottomWidth*self.padding) }
   this.getBaseRy = function() { return self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2) }
 
@@ -347,23 +359,23 @@ function Container() {
   }
 
   this.constructPoints = function() {
-    self.startPointInX = self.x-self.topWidth;
-    self.startPointInY = self.y;
-    self.topLinePathX = self.x+self.topWidth;
-    self.topLinePathY = self.y;
-    self.rightLinePathX = self.x+self.bottomWidth;
-    self.rightLinePathY = self.y+self.containerHeight;
-    self.bottomLinePathX = self.x-self.bottomWidth;
-    self.bottomLinePathY = self.y+self.containerHeight;
-    self.leftLinePathX = self.x-self.topWidth;
-    self.leftLinePathY = self.y;
+    self.startPointInX = self.getX()-self.topWidth;
+    self.startPointInY = self.getY();
+    self.topLinePathX = self.getX()+self.topWidth;
+    self.topLinePathY = self.getY();
+    self.rightLinePathX = self.getX()+self.bottomWidth;
+    self.rightLinePathY = self.getY()+self.containerHeight;
+    self.bottomLinePathX = self.getX()-self.bottomWidth;
+    self.bottomLinePathY = self.getY()+self.containerHeight;
+    self.leftLinePathX = self.getX()-self.topWidth;
+    self.leftLinePathY = self.getY();
   }
 
-  this.getTopCx = function() { return self.x }
-  this.getTopCy = function() { return self.y }
+  this.getTopCx = function() { return self.getX() }
+  this.getTopCy = function() { return self.getY() }
   this.getTopRx = function() { return self.topWidth }
-  this.getBaseCx = function() { return self.x }
-  this.getBaseCy = function() { return self.y+self.containerHeight }
+  this.getBaseCx = function() { return self.getX() }
+  this.getBaseCy = function() { return self.getY()+self.containerHeight }
   this.getBaseRx = function() { return self.bottomWidth }
 
   this.getPathMatrixForContainer = function() {
