@@ -32,6 +32,49 @@
       return this.y;
     }
 
+    self.setX = function(x) {
+      this.x = x;
+    }
+
+    self.setY = function(y) {
+      this.y = y;
+    }
+
+    self.getContainerHeight = function() {
+      return this.containerHeight;
+    }
+
+    self.setContainerHeight = function(containerHeight) {
+      this.containerHeight = containerHeight;
+    }
+
+    self.getTopWidth = function() {
+      return this.topWidth;
+    }
+
+    self.setTopWidth = function(topWidth) {
+      console.log("Topwidth",topWidth);
+      //console.log(arguments.callee.caller)
+      this.topWidth = topWidth;
+    }
+
+    self.getBottomWidth = function() {
+      console.log("Bottomwidth", bottomWidth)
+      return this.bottomWidth;
+    }
+
+    self.setBottomWidth = function(bottomWidth) {
+      this.bottomWidth = bottomWidth;
+    }
+
+    self.getYRotation = function() {
+      return this.yRotation;
+    }
+
+    self.setYRotation = function(yRotation) {
+      this.yRotation = yRotation;
+    }
+
     this.isTopSmallerThanBottom = function() {
       return self.topWidth < self.bottomWidth;
     }
@@ -148,6 +191,7 @@
 
     // Instance
     self.cylinder = {};
+    self.cylinder.prototype = self;
 
     self.cylinder.container = new Container();
     self.cylinder.container.drawContainer();
@@ -163,10 +207,6 @@
 
     self.cylinder.container.drawTop();
 
-    self.cylinder.setTopWidth = function(topWidth) {
-      self.topWidth = topWidth;
-    }
-    
     self.cylinder.animate = function(animationSettings) {
       if(!animationSettings) return;
       if(animationSettings['content'] && this.content) {
@@ -216,7 +256,7 @@
         var settingsForContainer = attrSettings['container'];
         if(settingsForContainer['topWidth']) {
           var newTopWidth = settingsForContainer['topWidth'];
-          self.cylinder.setTopWidth(newTopWidth);
+          self.cylinder.prototype.setTopWidth(newTopWidth);
           self.cylinder.update();
         }
       }
@@ -242,7 +282,16 @@
     }
 
     self.cylinder.joinBottom = function(cylinderInstance) {
+      cylinderInstance.prototype.setX(this.prototype.getX());
+      cylinderInstance.prototype.setY(this.prototype.getY()+this.prototype.getContainerHeight());
+      cylinderInstance.prototype.setTopWidth(this.prototype.getBottomWidth());
+      cylinderInstance.prototype.setYRotation(this.prototype.getYRotation());
+      cylinderInstance.container.topElement.remove();
+      this.container.baseElement.remove();
+      //this.container.baseElement.remove();
+      cylinderInstance.update();
 
+      //console.log(cylinderInstance.prototype.getX());
     }
     
 
@@ -378,12 +427,22 @@ function Container() {
   this.getBaseCy = function() { return self.getY()+self.containerHeight }
   this.getBaseRx = function() { return self.bottomWidth }
 
-  this.getPathMatrixForContainer = function() {
+  this.getPathMatrixForContainerWithoutEllipse = function() {
     return [
     ["M", self.startPointInX, self.startPointInY],
     ["A", self.topWidth, self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
     ["L", self.rightLinePathX, self.rightLinePathY],
     ["A", self.bottomWidth, self.getBaseRy(), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
+    ["L", self.leftLinePathX, self.leftLinePathY]
+    ];
+  }
+
+  this.getPathMatrixForContainer = function() {
+    return [
+    ["M", self.startPointInX, self.startPointInY],
+    ["M", self.topLinePathX, self.topLinePathY],
+    ["L", self.rightLinePathX, self.rightLinePathY],
+    ["M", self.bottomLinePathX, self.bottomLinePathY],
     ["L", self.leftLinePathX, self.leftLinePathY]
     ];
   }
