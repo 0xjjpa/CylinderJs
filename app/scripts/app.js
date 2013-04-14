@@ -52,8 +52,8 @@ c4.attr({content: {fill: "rgb(73, 240, 159)"}})
 //c2.animate({content: {percentage: 60, fill: "rgba(255,0,0)", ms: 1000}});
 //c3.animate({content: {fill: "rgb(0,0,0)"}});
 c4.animate({content: {percentage: 1}});
-c1.debug();
-c2.debug();
+//c1.debug();
+//c2.debug();
 c2.draggable();
 c1.draggable();
 c3.draggable();

@@ -24,6 +24,22 @@
     var self = this;    
 
     // Methods that retrieve information from properties
+    self.setOx = function(ox) {
+      this.ox = ox;
+    }
+
+    self.getOx = function() {
+      return this.ox;
+    }
+
+    self.setOy = function(oy) {
+      this.oy = oy;
+    }
+
+    self.getOy = function() {
+      return this.oy;
+    }
+
     self.getX = function() {
       return this.x;
     }
@@ -126,6 +142,40 @@
 
     }
 
+    var startChildren = function(cylinderInstance) {
+      if(cylinderInstance.child) {
+        cylinderInstance.child.prototype.setOx(cylinderInstance.child.prototype.getX());
+        cylinderInstance.child.prototype.setOy(cylinderInstance.child.prototype.getY());
+        startChildren(cylinderInstance.child);
+      }
+    }
+
+    var startParent = function(cylinderInstance) {
+      if(cylinderInstance.parent) {
+        cylinderInstance.parent.prototype.setOx(cylinderInstance.parent.prototype.getX());
+        cylinderInstance.parent.prototype.setOy(cylinderInstance.parent.prototype.getY());
+        startParent(cylinderInstance.parent);
+      }
+    }
+
+    var moveChildren = function(cylinderInstance, dx, dy) {      
+      if(cylinderInstance.child) {
+        cylinderInstance.child.prototype.setX(+cylinderInstance.child.prototype.getOx() + dx);
+        cylinderInstance.child.prototype.setY(+cylinderInstance.child.prototype.getOy() + dy);
+        self.updateElements(cylinderInstance.child);
+        moveChildren(cylinderInstance.child, dx, dy);
+      }
+    }
+
+    var moveParent = function(cylinderInstance, dx, dy) {      
+      if(cylinderInstance.parent) {
+        cylinderInstance.parent.prototype.setX(+cylinderInstance.parent.prototype.getOx() + dx);
+        cylinderInstance.parent.prototype.setY(+cylinderInstance.parent.prototype.getOy() + dy);
+        self.updateElements(cylinderInstance.parent);
+        moveParent(cylinderInstance.parent, dx, dy);
+      }
+    }
+
     var start = function() {
       if(this.instanceof !== "Content" && this.instanceof !== "Container") {        
         this.parent.onMouseDown();
@@ -145,19 +195,22 @@
             delete Cylinder.prototype.selectedTarget;
           }
         }
+      } else {
+        this.setOx(this.getX());
+        this.setOy(this.getY());
+        startChildren(self.cylinder);
+        startParent(self.cylinder);
       }
 
-      this.ox = this.x;
-      this.oy = this.y;
+      
     }
 
     var move = function(dx, dy) {
-      self.x = this.ox + dx;
-      self.y = this.oy + dy;      
+      self.setX(this.getOx() + dx);
+      self.setY(this.getOy() + dy);     
+      moveChildren(self.cylinder, dx, dy);
+      moveParent(self.cylinder, dx, dy);
       this.updateElements(self.cylinder);
-      if(self.cylinder.child) {
-        this.updateElements(self.cylinder.child);
-      }
     }
 
     var up = function() {
@@ -286,11 +339,12 @@
     }
 
     self.cylinder.joinBottom = function(cylinderInstance) {
-      cylinderInstance.parent = this.prototype;
+      //cylinderInstance.parent = this.prototype;
+      cylinderInstance.parent = this;
       this.child = cylinderInstance;
-      cylinderInstance.prototype.setX(cylinderInstance.parent.getX());
-      cylinderInstance.prototype.setY(cylinderInstance.parent.getY()+cylinderInstance.parent.getContainerHeight());
-      cylinderInstance.prototype.setTopWidth(cylinderInstance.parent.getBottomWidth());
+      cylinderInstance.prototype.setX(this.prototype.getX());
+      cylinderInstance.prototype.setY(this.prototype.getY()+this.prototype.getContainerHeight());
+      cylinderInstance.prototype.setTopWidth(this.prototype.getBottomWidth());
       cylinderInstance.container.topElement.remove();
       this.container.baseElement.remove();
       //this.container.baseElement.remove();
