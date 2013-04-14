@@ -2,15 +2,15 @@ var rsr = Raphael('cylinder', '600', '460');
 
 var x = 65;
 var y = 30;
-var containerHeight = 90;
+var containerHeight = 60;
 var topWidth = 55;
 var bottomWidth = 40;
 var yRotation = 30; 
 
 //cylinder(x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent, padding)
-var c1 = rsr.cylinder(x, y, topWidth, bottomWidth+15, containerHeight, yRotation+10, true, 20);
-var c2 = rsr.cylinder(x+140, y, topWidth, bottomWidth, containerHeight, yRotation, true, 40);
-var c3 = rsr.cylinder(x+140*2, y, topWidth-40, bottomWidth, containerHeight, yRotation+20, true, 20);
+var c1 = rsr.cylinder(x, y, 10, 10, containerHeight, yRotation+10, true, 20);
+var c2 = rsr.cylinder(x+140, y, 10, 10, containerHeight, yRotation, true, 40);
+var c3 = rsr.cylinder(x+140*2, y, topWidth-20, bottomWidth, containerHeight, yRotation+20, true, 20);
 var c4 = rsr.cylinder(x+140*3, y, topWidth-15, bottomWidth, containerHeight, yRotation, true, 50);
 // var c5 = rsr.cylinder(x, y+180, topWidth-30, bottomWidth-20, containerHeight-40, yRotation, true, 10);
 // var c6 = rsr.cylinder(x+120, y+150, topWidth+35, bottomWidth+10, containerHeight, yRotation+30, true, 25);
@@ -50,13 +50,17 @@ c4.attr({content: {fill: "rgb(73, 240, 159)"}})
 
 //c1.animate({content: {percentage: 20, ms: 1000}});
 //c2.animate({content: {percentage: 60, fill: "rgba(255,0,0)", ms: 1000}});
-c3.animate({content: {fill: "rgb(0,0,0)"}});
+//c3.animate({content: {fill: "rgb(0,0,0)"}});
 c4.animate({content: {percentage: 1}});
-
+c1.debug();
+c2.debug();
+c2.draggable();
 c1.draggable();
-c2.transferable();
-c3.transferable();
+c3.draggable();
+//c2.transferable();
+//c3.transferable();
 c1.joinBottom(c2);
+c2.joinBottom(c3);
 //c2.joinBottom(c3);
 //c5.draggable();
 

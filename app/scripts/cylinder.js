@@ -21,7 +21,7 @@
       throw new Error('A container height needs to be provided');
     }
 
-    var self = this;
+    var self = this;    
 
     // Methods that retrieve information from properties
     self.getX = function() {
@@ -59,7 +59,6 @@
     }
 
     self.getBottomWidth = function() {
-      console.log("Bottomwidth", bottomWidth)
       return this.bottomWidth;
     }
 
@@ -128,7 +127,7 @@
     }
 
     var start = function() {
-      if(this.instanceof !== "Content") {        
+      if(this.instanceof !== "Content" && this.instanceof !== "Container") {        
         this.parent.onMouseDown();
         if(Cylinder.prototype.selectedTarget === this.parent) {
           // Same container
@@ -156,6 +155,9 @@
       self.x = this.ox + dx;
       self.y = this.oy + dy;      
       this.updateElements(self.cylinder);
+      if(self.cylinder.child) {
+        this.updateElements(self.cylinder.child);
+      }
     }
 
     var up = function() {
@@ -174,7 +176,7 @@
       yr = +yr;
       yr = yr > 100 ? yr%100 : yr;
       yr = yr > 0 ? yr/100 : 1/100;
-      yr = self.isTopSmallerThanBottom() ? yr*self.topWidth : yr*self.bottomWidth;
+      yr = self.isTopSmallerThanBottom() ? yr*self.getTopWidth() : yr*self.getBottomWidth();
       return yr;
     })(yRotation);
 
@@ -263,8 +265,9 @@
     }
     
     self.cylinder.draggable = function() {
-      this.content.drag(move, start, up, this.content)
+      if(this.content) this.content.drag(move, start, up, this.content)
       this.container.drag(move, start, up, this.container)
+      return this;
     }
 
     
@@ -273,31 +276,51 @@
         Cylinder.prototype.cylinders = [];
       }
       Cylinder.prototype.cylinders.push(this);
-      this.content.isTransferable = true;
+      if(this.content) this.content.isTransferable = true;
+      return this;
     }
 
     self.cylinder.update = function() {
-      this.content.update();
+      if (this.content) this.content.update();
       this.container.update();
     }
 
     self.cylinder.joinBottom = function(cylinderInstance) {
-      cylinderInstance.prototype.setX(this.prototype.getX());
-      cylinderInstance.prototype.setY(this.prototype.getY()+this.prototype.getContainerHeight());
-      cylinderInstance.prototype.setTopWidth(this.prototype.getBottomWidth());
-      cylinderInstance.prototype.setYRotation(this.prototype.getYRotation());
+      cylinderInstance.parent = this.prototype;
+      this.child = cylinderInstance;
+      cylinderInstance.prototype.setX(cylinderInstance.parent.getX());
+      cylinderInstance.prototype.setY(cylinderInstance.parent.getY()+cylinderInstance.parent.getContainerHeight());
+      cylinderInstance.prototype.setTopWidth(cylinderInstance.parent.getBottomWidth());
       cylinderInstance.container.topElement.remove();
       this.container.baseElement.remove();
       //this.container.baseElement.remove();
       cylinderInstance.update();
 
       //console.log(cylinderInstance.prototype.getX());
+      return this;
     }
     
 
     if(self.cylinder.content) {
       self.cylinder.content.mousedown(start);
     }
+
+    var debug = function() {
+      var coords = this.getBBox();
+      if(this.rect) { this.rect.remove(); delete this.rect; }
+      else { 
+        this.rect = this.paper.rect(coords.x, coords.y, coords.width, coords.height)
+        .attr({fill: "none", stroke: "#aaaaaa", "stroke-width": 1});
+        this.parent.debug();
+
+      }
+    }
+
+    self.cylinder.debug = function() {
+      self.cylinder.container.mousedown(debug);  
+    }
+
+    
     
     return self.cylinder;
   }
@@ -390,6 +413,19 @@
     self.containerElement.parent = self;
   }
 
+  this.debug = function() {
+    console.log("CONTENT");
+    console.log("X",this.getX());
+    console.log("Y",this.getY());
+    console.log("TopCx",this.getTopCx());
+  console.log("TopCy",this.getTopCy());
+  console.log("TopRx",this.getTopRx());
+  console.log("BaseCx",this.getBaseCx());
+  console.log("BaseCy",this.getBaseCy());
+  console.log("BaseRx",this.getBaseRx());
+  console.log("YRotation", this.getYRotation());
+  }
+
   this.constructPoints();
 }
 
@@ -399,6 +435,12 @@ function Container() {
   this.containerElement = null;
   this.topElement = null;
   this.baseElement = null;
+
+  this.mousedown = function(start) {
+      self.topElement.mousedown(start);
+      self.baseElement.mousedown(start);
+      self.containerElement.mousedown(start);
+    }
 
   this.update = function() {
     self.constructPoints();
@@ -451,18 +493,34 @@ function Container() {
     self.topElement = this.paper.ellipse(
       self.getTopCx(), self.getTopCy(), self.getTopRx(), self.getTopRy()
       ).attr({fill: "rgba(255,255,255, 0)"});
+    self.topElement.parent = self;
   }
 
   this.drawBase = function() {
     self.baseElement = this.paper.ellipse(
       self.x, self.y+self.containerHeight, self.bottomWidth, self.getBaseRy()
       ).attr({fill: "rgba(255,255,255, 0)"});
+    self.baseElement.parent = self;
   }
 
   this.drawContainer = function() {
     self.containerElement = this.paper.path(
       self.getPathMatrixForContainer()
       ).attr({fill: "rgba(255,255,255, 0)"});
+    self.containerElement.parent = self;
+  }
+
+  this.debug = function() {
+    console.log("CONTAINER");
+    console.log("X",this.getX());
+    console.log("Y",this.getY());
+    console.log("TopCx",this.getTopCx());
+  console.log("TopCy",this.getTopCy());
+  console.log("TopRx",this.getTopRx());
+  console.log("BaseCx",this.getBaseCx());
+  console.log("BaseCy",this.getBaseCy());
+  console.log("BaseRx",this.getBaseRx());
+  console.log("YRotation", this.getYRotation());
   }
 
   this.constructPoints();
