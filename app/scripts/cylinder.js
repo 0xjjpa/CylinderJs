@@ -56,6 +56,15 @@
       this.y = y;
     }
 
+    self.getPercentageContent = function() {
+      return this.percentageContent;
+    }
+
+    self.setPercentageContent = function(percentageContent) {
+      percentageContent = percentageContent < 0 ? 0 : percentageContent;
+      this.percentageContent = percentageContent > 100 ? 100 : percentageContent;
+    }
+
     self.getContainerHeight = function() {
       return this.containerHeight;
     }
@@ -69,8 +78,6 @@
     }
 
     self.setTopWidth = function(topWidth) {
-      console.log("Topwidth",topWidth);
-      //console.log(arguments.callee.caller)
       this.topWidth = topWidth;
     }
 
@@ -111,7 +118,7 @@
     }
 
     this.getTopContentWidth = function() {
-      return self.isTopSmallerThanBottom() ? ((self.containerHeight-self.percentageContent)*Math.tan(self.getCylinderAngle()))+self.topWidth : (self.percentageContent*Math.tan(self.getCylinderAngle()))+self.bottomWidth;
+      return self.isTopSmallerThanBottom() ? ((self.containerHeight-self.getPercentageContent())*Math.tan(self.getCylinderAngle()))+self.topWidth : (self.getPercentageContent()*Math.tan(self.getCylinderAngle()))+self.bottomWidth;
     }
 
     this.getTopContentRy = function() {
@@ -123,7 +130,7 @@
     }
 
     this.updateElements = function(cylinderInstance) {
-      cylinderInstance.content.update();
+      if(cylinderInstance.content) cylinderInstance.content.update();
       cylinderInstance.container.update();
     }
 
@@ -137,6 +144,7 @@
       console.log("TRANSFER TIME!");
       var toTransfer = +transfuser.percentageContent;
       var newPercentageContent = +receiver.percentageContent + toTransfer;
+      console.log('New PC',newPercentageContent);
       Cylinder.prototype.cylinders[0].animate({content: {percentage: 0}});
       Cylinder.prototype.cylinders[1].animate({content: {percentage: newPercentageContent}});
 
@@ -273,14 +281,15 @@
         var content = this.content;
         if(settingsForContent['percentage']|| +settingsForContent['percentage'] >= 0) {
           var newPercentage = settingsForContent['percentage'];
-          self.percentageContent = newPercentage;
-
+          newPercentage = newPercentage > 100 ? 100 : newPercentage;
+          self.setPercentageContent(newPercentage);
           content.constructPoints();
           animationObjectForContainer['path'] = content.getPathMatrixForContainer().join(',');
           animationObjectForTop['cx'] = content.getTopCx();
           animationObjectForTop['cy'] = content.getTopCy();
           animationObjectForTop['rx'] = content.getTopRx();
           animationObjectForTop['ry'] = content.getTopRy();
+          console.log(animationObjectForTop);
         }
 
         if(settingsForContent['fill']){
@@ -289,6 +298,7 @@
           animationObjectForTop['fill'] = newColor;
           animationObjectForBase['fill'] = newColor;
         }
+        
 
         content.containerElement.animate(animationObjectForContainer, settingsForContent['ms'] || 2000)
         content.topElement.animate(animationObjectForTop, settingsForContent['ms'] || 2000)
@@ -371,7 +381,9 @@
     }
 
     self.cylinder.debug = function() {
+      if(this.content) self.cylinder.content.mousedown(debug);  
       self.cylinder.container.mousedown(debug);  
+      
     }
 
     
@@ -418,19 +430,19 @@
   this.constructPoints = function() {
     var topContentWidth = self.getTopContentWidth();
     self.startPointInX = self.getX()-topContentWidth+(topContentWidth*self.padding);
-    self.startPointInY = self.getY()+self.containerHeight-self.percentageContent;
+    self.startPointInY = self.getY()+self.containerHeight-self.getPercentageContent();
     self.topLinePathX = self.getX()+topContentWidth-(topContentWidth*self.padding);
-    self.topLinePathY = self.getY()+self.containerHeight-self.percentageContent;
+    self.topLinePathY = self.getY()+self.containerHeight-self.getPercentageContent();
     self.rightLinePathX = self.getX()+self.bottomWidth-(self.bottomWidth*self.padding);
     self.rightLinePathY = self.getY()+self.containerHeight;
     self.bottomLinePathX = self.getX()-self.bottomWidth+(self.bottomWidth*self.padding);
     self.bottomLinePathY = self.getY()+self.containerHeight;
     self.leftLinePathX = self.getX()-topContentWidth+(topContentWidth*self.padding);
-    self.leftLinePathY = self.getY()+self.containerHeight-self.percentageContent;
+    self.leftLinePathY = self.getY()+self.containerHeight-self.getPercentageContent();
   }
 
   this.getTopCx = function() { return self.getX() }
-  this.getTopCy = function() { return self.getY()+self.containerHeight-self.percentageContent }
+  this.getTopCy = function() { return self.getY()+self.containerHeight-self.getPercentageContent() }
   this.getTopRx = function() { return self.getTopContentWidth()-(self.getTopContentWidth()*self.padding) }
   this.getTopRy = function() { return self.getTopContentRy()-(self.getTopContentRy()*self.padding*2) }
   this.getBaseCx = function() { return self.getX() }
@@ -478,6 +490,7 @@
   console.log("BaseCy",this.getBaseCy());
   console.log("BaseRx",this.getBaseRx());
   console.log("YRotation", this.getYRotation());
+  console.log("PercentageContent", this.getPercentageContent());
   }
 
   this.constructPoints();
