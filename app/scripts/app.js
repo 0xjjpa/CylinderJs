@@ -11,7 +11,7 @@ var yRotation = 30;
 var c1 = rsr.cylinder(x, y, 10, 10, containerHeight, yRotation+10, false, 20);
 var c2 = rsr.cylinder(x+140, y, 10, 10, containerHeight, yRotation, false, 40);
 var c3 = rsr.cylinder(x+140*2, y, topWidth-20, bottomWidth, containerHeight, yRotation+20, true, 100);
-var c4 = rsr.cylinder(x+140*3, y, topWidth-15, bottomWidth, containerHeight, yRotation, true, 100);
+var c4 = rsr.cylinder(x+140*3, y, topWidth-15, bottomWidth, containerHeight, yRotation, true, 10);
  var c5 = rsr.cylinder(x+200, y+180, topWidth-30, bottomWidth-20, containerHeight+20, yRotation+20, true, 50);
 // var c6 = rsr.cylinder(x+120, y+150, topWidth+35, bottomWidth+10, containerHeight, yRotation+30, true, 25);
 // var c7 = rsr.cylinder(x+140*2, y+140, topWidth-15, bottomWidth, containerHeight, yRotation, false, 50);
@@ -51,7 +51,7 @@ c5.attr({content: {fill: "rgb(4, 117, 100)"}})
 //c1.animate({content: {percentage: 20, ms: 1000}});
 //c2.animate({content: {percentage: 60, fill: "rgba(255,0,0)", ms: 1000}});
 //c3.animate({content: {fill: "rgb(0,0,0)"}});
-c4.animate({content: {percentage: 70}});
+c4.animate({content: {percentage: 140}});
 c5.debug();
 //c1.debug();
 //c2.debug();

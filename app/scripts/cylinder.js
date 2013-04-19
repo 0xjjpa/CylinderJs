@@ -61,8 +61,8 @@
     }
 
     self.setPercentageContent = function(percentageContent) {
-      percentageContent = percentageContent < 0 ? 0 : percentageContent;
-      this.percentageContent = percentageContent > 100 ? 100 : percentageContent;
+      percentageContent = +percentageContent > 100 ? 100 : +percentageContent;
+      this.percentageContent = percentageContent > 0 ? percentageContent*self.containerHeight/100 : 0.01*self.containerHeight/100;      
     }
 
     self.getContainerHeight = function() {
@@ -242,12 +242,7 @@
     })(yRotation);
 
     this.hasContent = hasContent && (percentageContent || +percentageContent >=0) ? hasContent : false;
-    this.percentageContent = this.hasContent ? (function(pc){
-      pc = +pc;
-      pc = pc > 100 ? pc%100 : pc;
-      pc = pc > 0 ? pc*self.containerHeight/100 : 1*self.containerHeight/100;
-      return pc;
-    })(percentageContent) : null;
+    if(this.hasContent) self.setPercentageContent(percentageContent);
 
     Container.prototype = self;
     Content.prototype = self;
