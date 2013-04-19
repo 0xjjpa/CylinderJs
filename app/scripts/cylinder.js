@@ -62,7 +62,7 @@
 
     self.setPercentageContent = function(percentageContent) {
       percentageContent = +percentageContent > 100 ? 100 : +percentageContent;
-      this.percentageContent = percentageContent > 0 ? percentageContent*self.containerHeight/100 : 0.01*self.containerHeight/100;      
+      this.percentageContent = percentageContent > 0 ? percentageContent*self.containerHeight/100 : 0.00001*self.containerHeight/100;      
     }
 
     self.getContainerHeight = function() {
@@ -141,12 +141,22 @@
     }
 
     this.transfer = function(transfuser, receiver) {
-      console.log("TRANSFER TIME!");
-      var toTransfer = +transfuser.percentageContent;
-      var newPercentageContent = +receiver.percentageContent + toTransfer;
-      console.log('New PC',newPercentageContent);
-      Cylinder.prototype.cylinders[0].animate({content: {percentage: 0}});
-      Cylinder.prototype.cylinders[1].animate({content: {percentage: newPercentageContent}});
+      var toTransfer = +transfuser.getRealVolumen();
+      var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
+      console.log("My volumen", toTransfer);
+      console.log("His volumen", receiver.getRealVolumen())
+      console.log("New volumen", receiverNewVolumen);
+
+      var newPercentageContent = receiver.setPercentageFromVolumen(receiverNewVolumen);      
+      var exceededPercentage = newPercentageContent > 100 ? newPercentageContent - 100 : 0;
+
+      console.log('His Old Percentage Content', receiver.getPercentageContent())
+      console.log('New Percentage Content', newPercentageContent)
+      receiver.setPercentageContent(newPercentageContent)
+      console.log('His new volume', receiver.getRealVolumen())
+      
+      Cylinder.prototype.cylinders[0].animate({ content: { percentage: exceededPercentage }}, Cylinder.prototype.cylinders[0].content.updateText);
+      Cylinder.prototype.cylinders[1].animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, Cylinder.prototype.cylinders[1].content.updateText);
 
     }
 
@@ -265,7 +275,7 @@
 
     self.cylinder.container.drawTop();
 
-    self.cylinder.animate = function(animationSettings) {
+    self.cylinder.animate = function(animationSettings, contentCallback) {
       if(!animationSettings) return;
       if(animationSettings['content'] && this.content) {
         var settingsForContent = animationSettings['content'],
@@ -284,7 +294,6 @@
           animationObjectForTop['cy'] = content.getTopCy();
           animationObjectForTop['rx'] = content.getTopRx();
           animationObjectForTop['ry'] = content.getTopRy();
-          console.log(animationObjectForTop);
         }
 
         if(settingsForContent['fill']){
@@ -296,7 +305,7 @@
         
 
         content.containerElement.animate(animationObjectForContainer, settingsForContent['ms'] || 2000)
-        content.topElement.animate(animationObjectForTop, settingsForContent['ms'] || 2000)
+        content.topElement.animate(animationObjectForTop, settingsForContent['ms'] || 2000, 'linear', contentCallback.bind(content))
         content.baseElement.animate(animationObjectForBase, settingsForContent['ms'] || 2000)
       }
     }
@@ -436,6 +445,14 @@
     self.leftLinePathY = self.getY()+self.containerHeight-self.getPercentageContent();
   }
 
+  this.getRealVolumen = function() {
+    return (Math.PI*(Math.pow(self.getTopWidth(),2))*(self.getPercentageContent()))/1000;
+  }
+
+  this.setPercentageFromVolumen = function(volumen) {
+    return (volumen*1000)/(Math.PI*(Math.pow(self.getTopWidth(),2)));
+  }
+
   this.getTopCx = function() { return self.getX() }
   this.getTopCy = function() { return self.getY()+self.containerHeight-self.getPercentageContent() }
   this.getTopRx = function() { return self.getTopContentWidth()-(self.getTopContentWidth()*self.padding) }
@@ -469,9 +486,17 @@
     self.baseElement.parent = self;
   }
 
-  this.drawContainer = function() {
+  this.updateText = function() {
+    this.textElement.attr({text: self.getRealVolumen().toFixed(2)+"ml" });
+  }
+
+  this.drawContainer = function() {    
     self.containerElement = this.paper.path(this.getPathMatrixForContainer());
+    var coords = self.containerElement.getBBox();
+    self.textElement = this.paper.text(coords.x+coords.width+32, self.y, self.getRealVolumen().toFixed(2)+"ml");
     self.containerElement.parent = self;
+    console.log("Volumen",self.getRealVolumen().toFixed(2))
+    console.log("Percentage Content",self.getPercentageContent())
   }
 
   this.debug = function() {
