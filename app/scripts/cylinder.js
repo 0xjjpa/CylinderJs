@@ -205,6 +205,7 @@
     }
 
     var afterTransferCallback = function() {
+      if(!this) return;
       this.content.updateVolumenText();
       if(this.container.isDraggable) this.draggable();
     }
@@ -272,6 +273,7 @@
       
     }
 
+    /*
     var move = function(dx, dy) {
       self.setX(this.getOx() + dx);
       self.setY(this.getOy() + dy);     
@@ -287,7 +289,8 @@
 
       //if(this.instanceof === "Content") this.onMouseUp();
     }
-
+    */
+  
     // Public Properties
     this.paper = paper;
     this.x = x || 0,
@@ -356,11 +359,10 @@
           animationObjectForTop['fill'] = newColor;
           animationObjectForBase['fill'] = newColor;
         }
-        
-        content.containerElement.animate(animationObjectForContainer, settingsForContent['ms'] || 2000)
-        if(cylinderToCallback) content.topElement.animate(animationObjectForTop, settingsForContent['ms'] || 2000, 'linear', afterTransferCallback.bind(cylinderToCallback))
-        else content.topElement.animate(animationObjectForTop, settingsForContent['ms'] || 2000)
-        content.baseElement.animate(animationObjectForBase, settingsForContent['ms'] || 2000)
+
+        var animateObject = Raphael.animation(animationObjectForContainer, settingsForContent['ms'] || 12000, '<>', afterTransferCallback.bind(cylinderToCallback));
+        var elementObject = content.containerElement.animate(animateObject);
+        content.topElement.animateWith(elementObject, animateObject, animationObjectForTop, settingsForContent['ms'] || 12000, '<>');
       }
     }
 
@@ -394,11 +396,12 @@
     }
 
     var dragMove = function(dx, dy) {
+      if(!this || !self) return;
       self.setX(this.getOx() + dx);
       self.setY(this.getOy() + dy);     
       moveChildren(self.cylinder, dx, dy);
       moveParent(self.cylinder, dx, dy);
-      this.updateElements(self.cylinder);
+      self.updateElements(self.cylinder);
     }
 
     var dragUp = function() {
