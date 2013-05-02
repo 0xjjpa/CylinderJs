@@ -1,27 +1,16 @@
 var rsr = Raphael('cylinder', '600', '460');
 
-var x = 65;
-var y = 30;
+var x = 50;
+var y = 50;
 var containerHeight = 60;
 var topWidth = 55;
 var bottomWidth = 40;
 var yRotation = 30; 
 
-//cylinder(x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent, padding)
-//var c1 = rsr.cylinder(x, y, 10, 10, containerHeight, yRotation+10, false, 20);
-//var c2 = rsr.cylinder(x+140, y, 10, 10, containerHeight, yRotation, false, 40);
-var c3 = rsr.cylinder(x+140*2, y, topWidth-20, bottomWidth, containerHeight, yRotation+20, true, 20);
-var c4 = rsr.cylinder(x+140*3, y, topWidth-15, bottomWidth, containerHeight, yRotation, true, 50);
- var c5 = rsr.cylinder(x+200, y+180, topWidth-30, bottomWidth-20, containerHeight+20, yRotation+20, true, 50);
-// var c6 = rsr.cylinder(x+120, y+150, topWidth+35, bottomWidth+10, containerHeight, yRotation+30, true, 25);
-// var c7 = rsr.cylinder(x+140*2, y+140, topWidth-15, bottomWidth, containerHeight, yRotation, false, 50);
-// var c8 = rsr.cylinder(x+140*3, y+140, topWidth-15, bottomWidth, containerHeight, yRotation*0, true, 50);
-// var c9 = rsr.cylinder(x-40, y+280, topWidth-45, bottomWidth-30, containerHeight, yRotation, true, 30, .25);
-// var c10 = rsr.cylinder(x, y+280, topWidth-45, bottomWidth-30, containerHeight, yRotation, true, 60, .25);
-// var c11 = rsr.cylinder(x+40, y+280, topWidth-45, bottomWidth-30, containerHeight, yRotation, true, 40, .25);
-// var c12 = rsr.cylinder(x+140, y+280, topWidth-45, bottomWidth, containerHeight, yRotation+60, true, 50);
-// var c13 = rsr.cylinder(x+140*2, y+280, topWidth-15, bottomWidth, containerHeight, yRotation, true, 50, .25);
-// var c14 = rsr.cylinder(x+140*3, y+280, topWidth-15, bottomWidth-25, containerHeight, yRotation+60, true, 50, .23);
+
+var c3 = rsr.cylinder(x, y, topWidth-20, bottomWidth, containerHeight+20, yRotation+20, true, 70);
+var c4 = rsr.cylinder(x+200, y, topWidth-15, bottomWidth, containerHeight, yRotation, true, 50);
+var c5 = rsr.cylinder(x, y+180, topWidth-30, bottomWidth-20, containerHeight+20, yRotation+20, true, 10);
 
 /*
 c1.attr(
@@ -37,9 +26,9 @@ c1.attr(
 */
 
 //c2.attr({content: {fill: "rgb(0, 0, 255)"}})
-c3.attr({content: {fill: "rgb(212, 255, 0)"}})
-c4.attr({content: {fill: "rgb(73, 240, 159)"}})
-c5.attr({content: {fill: "rgb(4, 117, 100)"}})
+//c3.attr({content: {fill: "rgb(212, 255, 0)"}})
+//c4.attr({content: {fill: "rgb(73, 240, 159)"}})
+//c5.attr({content: {fill: "rgb(4, 117, 100)"}})
 // c6.attr({content: {fill: "rgb(255, 187, 0)"}})
 // c8.attr({content: {fill: "rgb(46, 9, 29)"}})
 // c9.attr({content: {fill: "rgb(250, 51, 37)"}})
@@ -55,7 +44,7 @@ c5.attr({content: {fill: "rgb(4, 117, 100)"}})
 //c4.animate({content: {percentage: 140}});
 //c5.debug();
 //c1.debug();
-//c2.debug();
+//c3.debug();
 //c2.draggable();
 //c1.draggable();
 //c3.draggable();
@@ -63,10 +52,13 @@ c5.attr({content: {fill: "rgb(4, 117, 100)"}})
 //c1.joinBottom(c2);
 //c2.joinBottom(c3);
 //c2.joinBottom(c3);
-//c5.draggable();
+c3.draggable();
+c4.draggable();
+c5.draggable();
 
-c5.transferable();
 c3.transferable();
+c4.transferable();
+c5.transferable();
 
 /*
 Volumen
