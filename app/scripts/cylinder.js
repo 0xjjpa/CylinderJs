@@ -152,27 +152,14 @@
     this.transfer = function(transfuser, receiver) {
       var toTransfer = +transfuser.getRealVolumen();
       var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
-      console.log("********* TRAAAAANSFER TIME ***********")
-      console.log("His volumen", receiver.getRealVolumen())
-      console.log("His new volumen", receiverNewVolumen);
 
       var newPercentageContent = receiver.setPercentageFromVolumen(receiverNewVolumen);
-
       var exceededPercentage = newPercentageContent > 100 ? newPercentageContent - 100 : 0.00001;
 
-      console.log('His Old Percentage Content', receiver.getPercentageContent())
-      console.log('His New (Original) Percentage Content', newPercentageContent)
-
-      console.log('Updating Percentage Content...')
       receiver.setPercentageContent(newPercentageContent)
-
-      console.log('His Current Percentage Content', receiver.getPercentageContent())
-      console.log('His Current Volume', receiver.getRealVolumen())
-
-      
-
+    
       var cylinderCandidate, transfuserCylinder, receiverCylinder;
-      //console.log(Cylinder.prototype.cylinders);
+    
       for(var i = 0, len = Cylinder.prototype.cylinders.length; i < len; i++) {
         cylinderCandidate = Cylinder.prototype.cylinders[i];
         if(cylinderCandidate.content === transfuser) {
@@ -181,10 +168,6 @@
           receiverCylinder = cylinderCandidate;
         }
       }
-
-      console.log('My Old Percentage Content', transfuser.getPercentageContent())
-      console.log("My Old Volumen", toTransfer)
-      console.log("My New Percentage Content", exceededPercentage)
 
       if(transfuserCylinder.container.isDraggable){
         transfuserCylinder.undraggable();
@@ -195,12 +178,7 @@
       }
       
       transfuserCylinder.animate({ content: { percentage: transfuser.setPercentageFromVolumen(exceededPercentage) }}, transfuserCylinder);
-      receiverCylinder.animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);
-
-      console.log('My Current Percentage Content', transfuser.getPercentageContent())
-      console.log("My Current Volumen", transfuser.getRealVolumen());
-      transfuserCylinder.content.debug();
-      
+      receiverCylinder.animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);      
 
     }
 
