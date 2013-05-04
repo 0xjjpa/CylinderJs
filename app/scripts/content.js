@@ -12,12 +12,10 @@ function Content() {
     }
 
     this.onMouseDown = function() {
-      console.log("Bring the opacity");
-      self.attr({opacity: .5});
+      self.attr({opacity: .2});
     }
 
     this.onMouseUp = function() {
-      console.log("Put away opacity")
      self.attr({opacity: 1}); 
    }
 

@@ -179,13 +179,15 @@
       
       transfuserCylinder.animate({ content: { percentage: transfuser.setPercentageFromVolumen(exceededPercentage) }}, transfuserCylinder);
       receiverCylinder.animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);      
-
     }
 
     var afterTransferCallback = function() {
       if(!this) return;
+      var self = this;
       this.content.updateVolumenText();
-      if(this.container.isDraggable) this.draggable();
+      if(this.container.isDraggable) {
+        this.draggable();
+      }
     }
 
     var startChildren = function(cylinderInstance) {
@@ -305,7 +307,6 @@
       self.cylinder.content.drawBase();
       self.cylinder.content.drawTop();
       self.cylinder.content.writeVolumen();
-
     } 
 
     self.cylinder.container.drawTop();
@@ -338,9 +339,9 @@
           animationObjectForBase['fill'] = newColor;
         }
 
-        var animateObject = Raphael.animation(animationObjectForContainer, settingsForContent['ms'] || 12000, '<>', afterTransferCallback.bind(cylinderToCallback));
+        var animateObject = Raphael.animation(animationObjectForContainer, settingsForContent['ms'] || 1000, '<>', afterTransferCallback.bind(cylinderToCallback));
         var elementObject = content.containerElement.animate(animateObject);
-        content.topElement.animateWith(elementObject, animateObject, animationObjectForTop, settingsForContent['ms'] || 12000, '<>');
+        content.topElement.animateWith(elementObject, animateObject, animationObjectForTop, settingsForContent['ms'] || 1000, '<>');
       }
     }
 
@@ -367,6 +368,7 @@
 
     var dragStart = function() {
       //Hide Text
+      this.onMouseDown();
       this.setOx(this.getX());
       this.setOy(this.getY());
       startChildren(self.cylinder);
@@ -383,7 +385,7 @@
     }
 
     var dragUp = function() {
-
+      this.onMouseUp();
     }
 
     self.cylinder.undraggable = function() {

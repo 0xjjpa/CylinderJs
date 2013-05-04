@@ -11,6 +11,20 @@ function Container() {
       self.containerElement.mousedown(start);
     }
 
+    this.onMouseDown = function() {
+      self.attr({opacity: .2});
+    }
+
+    this.onMouseUp = function() {
+     self.attr({opacity: 1}); 
+   }
+
+   this.attr = function(attrObject) {
+    self.topElement.attr(attrObject);
+    self.baseElement.attr(attrObject);
+    self.containerElement.attr(attrObject);
+  }
+
   this.update = function() {
     self.constructPoints();
     self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy() });

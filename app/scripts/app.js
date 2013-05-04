@@ -26,9 +26,9 @@ c1.attr(
 */
 
 //c2.attr({content: {fill: "rgb(0, 0, 255)"}})
-//c3.attr({content: {fill: "rgb(212, 255, 0)"}})
-//c4.attr({content: {fill: "rgb(73, 240, 159)"}})
-//c5.attr({content: {fill: "rgb(4, 117, 100)"}})
+c3.attr({content: {fill: "rgba(255, 255, 0, 1)"}})
+c4.attr({content: {fill: "rgba(0, 200, 159, 1)"}})
+c5.attr({content: {fill: "rgba(0, 255, 100, 1)"}})
 // c6.attr({content: {fill: "rgb(255, 187, 0)"}})
 // c8.attr({content: {fill: "rgb(46, 9, 29)"}})
 // c9.attr({content: {fill: "rgb(250, 51, 37)"}})
