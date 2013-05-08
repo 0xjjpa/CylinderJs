@@ -434,7 +434,7 @@
     }
 
     self.cylinder.draggable = function() {
-      if(this.content) this.content.drag(dragMove, dragStart, dragUp, this.content)
+      //if(this.content) this.content.drag(dragMove, dragStart, dragUp, this.content)
       this.container.drag(dragMove, dragStart, dragUp, this.container)
       this.container.isDraggable = true;
       return this;
