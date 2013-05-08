@@ -404,6 +404,7 @@
     var dragStart = function() {
       //Hide Text
       this.onMouseDown();
+      if(self.cylinder.content) self.cylinder.content.onMouseDown();
       mousedownParent(self.cylinder);
       mousedownChildren(self.cylinder);
       this.setOx(this.getX());
@@ -423,6 +424,7 @@
 
     var dragUp = function() {
       this.onMouseUp();
+      if(self.cylinder.content) self.cylinder.content.onMouseUp();
       mouseUpParent(self.cylinder);
       mouseUpChildren(self.cylinder);
     }
