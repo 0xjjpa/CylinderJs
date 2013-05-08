@@ -153,10 +153,10 @@
       var toTransfer = +transfuser.getRealVolumen();
       var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
 
-      var newPercentageContent = receiver.setPercentageFromVolumen(receiverNewVolumen);
-      var exceededPercentage = newPercentageContent > 100 ? newPercentageContent - 100 : 0.00001;
+      var receiverMaxVolumen = +receiver.getMaxVolumen();
+      var exceededVolumen = receiverNewVolumen > receiverMaxVolumen ? receiverNewVolumen - receiverMaxVolumen : 0.00001;
 
-      receiver.setPercentageContent(newPercentageContent)
+      //receiver.setPercentageContent(newPercentageContent)
     
       var cylinderCandidate, transfuserCylinder, receiverCylinder;
     
@@ -177,7 +177,7 @@
         receiverCylinder.undraggable(); 
       }
       
-      transfuserCylinder.animate({ content: { percentage: transfuser.setPercentageFromVolumen(exceededPercentage) }}, transfuserCylinder);
+      transfuserCylinder.animate({ content: { percentage: transfuser.setPercentageFromVolumen(exceededVolumen) }}, transfuserCylinder);
       receiverCylinder.animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);      
     }
 

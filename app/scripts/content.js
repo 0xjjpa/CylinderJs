@@ -51,6 +51,10 @@ function Content() {
     return (Math.PI*(Math.pow(self.getTopWidth(),2))*(self.getPercentageContent()))/1000;
   }
 
+  this.getMaxVolumen = function() {
+    return (Math.PI*(Math.pow(self.getTopWidth(),2))*(self.getContainerHeight()))/1000; 
+  }
+
   this.setPercentageFromVolumen = function(volumen) {
     return self.getOriginalPercentage((volumen*1000)/(Math.PI*(Math.pow(self.getTopWidth(),2))));
   }
