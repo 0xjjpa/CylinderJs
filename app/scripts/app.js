@@ -49,9 +49,8 @@ c5.attr({content: {fill: "rgba(0, 255, 100, 1)"}})
 //c1.draggable();
 //c3.draggable();
 
-//c1.joinBottom(c2);
-//c2.joinBottom(c3);
-//c2.joinBottom(c3);
+c4.joinBottom(c5);
+
 c3.draggable();
 c4.draggable();
 c5.draggable();

@@ -190,6 +190,38 @@
       }
     }
 
+    var mousedownParent = function(cylinderInstance) {
+      if(cylinderInstance.parent) {
+        cylinderInstance.parent.content.onMouseDown();
+        cylinderInstance.parent.container.onMouseDown();
+        mousedownParent(cylinderInstance.parent);
+      }
+    }
+
+    var mousedownChildren = function(cylinderInstance) {
+      if(cylinderInstance.child) {
+        cylinderInstance.child.content.onMouseDown();
+        cylinderInstance.child.container.onMouseDown();
+        mousedownChildren(cylinderInstance.child);
+      }
+    }
+
+    var mouseUpParent = function(cylinderInstance) {
+      if(cylinderInstance.parent) {
+        cylinderInstance.parent.content.onMouseUp();
+        cylinderInstance.parent.container.onMouseUp();
+        mouseUpParent(cylinderInstance.parent);
+      }
+    }
+
+    var mouseUpChildren = function(cylinderInstance) {
+      if(cylinderInstance.child) {
+        cylinderInstance.child.content.onMouseUp();
+        cylinderInstance.child.container.onMouseUp();
+        mouseUpChildren(cylinderInstance.child);
+      }
+    }
+
     var startChildren = function(cylinderInstance) {
       if(cylinderInstance.child) {
         cylinderInstance.child.prototype.setOx(cylinderInstance.child.prototype.getX());
@@ -224,6 +256,8 @@
       }
     }
 
+    /*
+
     var start = function() {
       if(this.instanceof !== "Content" && this.instanceof !== "Container") {        
         this.parent.onMouseDown();
@@ -252,6 +286,7 @@
 
       
     }
+    */
 
     /*
     var move = function(dx, dy) {
@@ -369,6 +404,8 @@
     var dragStart = function() {
       //Hide Text
       this.onMouseDown();
+      mousedownParent(self.cylinder);
+      mousedownChildren(self.cylinder);
       this.setOx(this.getX());
       this.setOy(this.getY());
       startChildren(self.cylinder);
@@ -386,6 +423,8 @@
 
     var dragUp = function() {
       this.onMouseUp();
+      mouseUpParent(self.cylinder);
+      mouseUpChildren(self.cylinder);
     }
 
     self.cylinder.undraggable = function() {
