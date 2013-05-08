@@ -12,12 +12,10 @@ function Content() {
     }
 
     this.onMouseDown = function() {
-      console.log("Bring the opacity");
-      self.attr({opacity: .5});
+      self.attr({opacity: .2});
     }
 
     this.onMouseUp = function() {
-      console.log("Put away opacity")
      self.attr({opacity: 1}); 
    }
 
@@ -51,6 +49,10 @@ function Content() {
 
   this.getRealVolumen = function() {
     return (Math.PI*(Math.pow(self.getTopWidth(),2))*(self.getPercentageContent()))/1000;
+  }
+
+  this.getMaxVolumen = function() {
+    return (Math.PI*(Math.pow(self.getTopWidth(),2))*(self.getContainerHeight()))/1000; 
   }
 
   this.setPercentageFromVolumen = function(volumen) {

@@ -152,27 +152,14 @@
     this.transfer = function(transfuser, receiver) {
       var toTransfer = +transfuser.getRealVolumen();
       var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
-      console.log("********* TRAAAAANSFER TIME ***********")
-      console.log("His volumen", receiver.getRealVolumen())
-      console.log("His new volumen", receiverNewVolumen);
 
-      var newPercentageContent = receiver.setPercentageFromVolumen(receiverNewVolumen);
+      var receiverMaxVolumen = +receiver.getMaxVolumen();
+      var exceededVolumen = receiverNewVolumen > receiverMaxVolumen ? receiverNewVolumen - receiverMaxVolumen : 0.00001;
 
-      var exceededPercentage = newPercentageContent > 100 ? newPercentageContent - 100 : 0.00001;
-
-      console.log('His Old Percentage Content', receiver.getPercentageContent())
-      console.log('His New (Original) Percentage Content', newPercentageContent)
-
-      console.log('Updating Percentage Content...')
-      receiver.setPercentageContent(newPercentageContent)
-
-      console.log('His Current Percentage Content', receiver.getPercentageContent())
-      console.log('His Current Volume', receiver.getRealVolumen())
-
-      
-
+      //receiver.setPercentageContent(newPercentageContent)
+    
       var cylinderCandidate, transfuserCylinder, receiverCylinder;
-      //console.log(Cylinder.prototype.cylinders);
+    
       for(var i = 0, len = Cylinder.prototype.cylinders.length; i < len; i++) {
         cylinderCandidate = Cylinder.prototype.cylinders[i];
         if(cylinderCandidate.content === transfuser) {
@@ -182,10 +169,6 @@
         }
       }
 
-      console.log('My Old Percentage Content', transfuser.getPercentageContent())
-      console.log("My Old Volumen", toTransfer)
-      console.log("My New Percentage Content", exceededPercentage)
-
       if(transfuserCylinder.container.isDraggable){
         transfuserCylinder.undraggable();
       }
@@ -194,19 +177,17 @@
         receiverCylinder.undraggable(); 
       }
       
-      transfuserCylinder.animate({ content: { percentage: transfuser.setPercentageFromVolumen(exceededPercentage) }}, transfuserCylinder);
-      receiverCylinder.animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);
-
-      console.log('My Current Percentage Content', transfuser.getPercentageContent())
-      console.log("My Current Volumen", transfuser.getRealVolumen());
-      transfuserCylinder.content.debug();
-      
-
+      transfuserCylinder.animate({ content: { percentage: transfuser.setPercentageFromVolumen(exceededVolumen) }}, transfuserCylinder);
+      receiverCylinder.animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);      
     }
 
     var afterTransferCallback = function() {
+      if(!this) return;
+      var self = this;
       this.content.updateVolumenText();
-      if(this.container.isDraggable) this.draggable();
+      if(this.container.isDraggable) {
+        this.draggable();
+      }
     }
 
     var startChildren = function(cylinderInstance) {
@@ -272,6 +253,7 @@
       
     }
 
+    /*
     var move = function(dx, dy) {
       self.setX(this.getOx() + dx);
       self.setY(this.getOy() + dy);     
@@ -287,7 +269,8 @@
 
       //if(this.instanceof === "Content") this.onMouseUp();
     }
-
+    */
+  
     // Public Properties
     this.paper = paper;
     this.x = x || 0,
@@ -324,7 +307,6 @@
       self.cylinder.content.drawBase();
       self.cylinder.content.drawTop();
       self.cylinder.content.writeVolumen();
-
     } 
 
     self.cylinder.container.drawTop();
@@ -356,11 +338,10 @@
           animationObjectForTop['fill'] = newColor;
           animationObjectForBase['fill'] = newColor;
         }
-        
-        content.containerElement.animate(animationObjectForContainer, settingsForContent['ms'] || 2000)
-        if(cylinderToCallback) content.topElement.animate(animationObjectForTop, settingsForContent['ms'] || 2000, 'linear', afterTransferCallback.bind(cylinderToCallback))
-        else content.topElement.animate(animationObjectForTop, settingsForContent['ms'] || 2000)
-        content.baseElement.animate(animationObjectForBase, settingsForContent['ms'] || 2000)
+
+        var animateObject = Raphael.animation(animationObjectForContainer, settingsForContent['ms'] || 1000, '<>', afterTransferCallback.bind(cylinderToCallback));
+        var elementObject = content.containerElement.animate(animateObject);
+        content.topElement.animateWith(elementObject, animateObject, animationObjectForTop, settingsForContent['ms'] || 1000, '<>');
       }
     }
 
@@ -387,6 +368,7 @@
 
     var dragStart = function() {
       //Hide Text
+      this.onMouseDown();
       this.setOx(this.getX());
       this.setOy(this.getY());
       startChildren(self.cylinder);
@@ -394,15 +376,16 @@
     }
 
     var dragMove = function(dx, dy) {
+      if(!this || !self) return;
       self.setX(this.getOx() + dx);
       self.setY(this.getOy() + dy);     
       moveChildren(self.cylinder, dx, dy);
       moveParent(self.cylinder, dx, dy);
-      this.updateElements(self.cylinder);
+      self.updateElements(self.cylinder);
     }
 
     var dragUp = function() {
-
+      this.onMouseUp();
     }
 
     self.cylinder.undraggable = function() {
