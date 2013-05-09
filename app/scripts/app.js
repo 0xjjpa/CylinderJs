@@ -10,7 +10,9 @@ var yRotation = 50;
 
 var c3 = rsr.cylinder(x, y, topWidth-20, bottomWidth, containerHeight+20, yRotation, true, 70);
 var c4 = rsr.cylinder(x+200, y, topWidth-20, bottomWidth, containerHeight, yRotation, true, 70);
-var c5 = rsr.cylinder(x, y+0, topWidth-30, bottomWidth-20, containerHeight+20, yRotation, true, 0);
+var c5 = rsr.cylinder(x, y+0, topWidth-30, bottomWidth+20, containerHeight+20, yRotation, true, 0);
+//var c6 = rsr.cylinder(x, y+0, topWidth-30, bottomWidth-20, containerHeight+20, yRotation, true, 0);
+//var c7 = rsr.cylinder(x, y+0, topWidth-30, bottomWidth-20, containerHeight+20, yRotation, true, 0);
 
 /*
 c1.attr(
@@ -51,14 +53,17 @@ c5.attr({content: {fill: "rgba(0, 200, 159, 1)"}})
 
 //c5.joinBottom(c4);
 c4.joinBottom(c3);
+//c5.joinBottom(c6);
 
 c3.draggable();
 c4.draggable();
 c5.draggable();
+//c6.draggable();
 
 c3.transferable();
 c4.transferable();
 c5.transferable();
+//c6.transferable();
 
 /*
 Volumen

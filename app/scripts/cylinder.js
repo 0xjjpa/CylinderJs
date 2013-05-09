@@ -175,7 +175,6 @@
       if(transfuserCylinder.parent && !transfuserCylinder.parent.content.isEmpty()) {
         self.transfer(transfuserCylinder.parent.content, receiver, hasAnimation, transfuserCylinder.parent, receiverCylinder);
       } else {
-
         var toTransfer = +transfuser.getRealVolumen();
         var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
 
@@ -226,10 +225,16 @@
       if(this.transfuser) {
         if(this.transfuserData.exceededVolumen === 0.00001 && this.transfuserData.receiverNewVolumen < this.transfuserData.receiverMaxVolumen && this.child) {
           self.transfer(this.child.content, this.transfuserData.receiver, this.transfuserData.hasAnimation, this.child, this.transfuserData.receiverCylinder);
-        } else {
-          delete this.transfuser;
-          delete this.transfuserData;
-        }
+        } else if(this.transfuserData.exceededVolumen > 0.00001 && 
+          this.transfuserData.receiverNewVolumen > this.transfuserData.receiverMaxVolumen &&
+           this.transfuserData.receiverCylinder.parent &&
+           !(this.container.joined && this.transfuserData.receiverCylinder.parent.container.joined)
+           ) {
+          this.transfuserData.receiverCylinder.parent.content.showContent();
+          self.transfer(this.content, this.transfuserData.receiverCylinder.parent.content, this.transfuserData.hasAnimation, this, this.transfuserData.receiverCylinder.parent);
+        } 
+        delete this.transfuser;
+        delete this.transfuserData;
       }
     }
 
@@ -603,14 +608,13 @@
     }
     */
 
-    var debug = function() {
-      var coords = this.getBBox();
+    self.cylinder.debug = function() {
+      var coords = this.content.topElement.getBBox();
       if(this.rect) { this.rect.remove(); delete this.rect; }
       else { 
-        this.rect = this.paper.rect(coords.x, coords.y, coords.width, coords.height)
-        .attr({fill: "none", stroke: "#aaaaaa", "stroke-width": 1});
-        this.parent.debug();
-
+        this.content.paper.rect(coords.x, coords.y, coords.width, coords.height)
+        .attr({fill: "none", stroke: "#000", "stroke-width": 1});
+        //this.parent.debug();
       }
     }
 
