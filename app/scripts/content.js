@@ -98,8 +98,12 @@ function Content() {
     self.baseElement.parent = self;
   }
 
+  this.isEmpty = function() {
+    return self.getPercentageContent() < 0.001; 
+  }
+
   this.checkIfNeedsToBeHidden = function() {
-    if(self.getPercentageContent() < 0.001) {
+    if(self.isEmpty()) {
       self.hideContent();
     }
   }

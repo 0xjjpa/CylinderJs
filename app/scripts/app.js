@@ -9,7 +9,7 @@ var yRotation = 50;
 
 
 var c3 = rsr.cylinder(x, y, topWidth-20, bottomWidth, containerHeight+20, yRotation, true, 70);
-var c4 = rsr.cylinder(x+200, y, topWidth-20, bottomWidth, containerHeight, yRotation, true, 50);
+var c4 = rsr.cylinder(x+200, y, topWidth-20, bottomWidth, containerHeight, yRotation, true, 70);
 var c5 = rsr.cylinder(x, y+0, topWidth-30, bottomWidth-20, containerHeight+20, yRotation, true, 0);
 
 /*

@@ -150,16 +150,10 @@
     }
 
     this.transfer = function(transfuser, receiver, hasAnimation, transfuserCylinder, receiverCylinder) {
-      var toTransfer = +transfuser.getRealVolumen();
-      var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
-
-      var receiverMaxVolumen = +receiver.getMaxVolumen();
-      var exceededVolumen = receiverNewVolumen > receiverMaxVolumen ? receiverNewVolumen - receiverMaxVolumen : 0.00001;
-
       //receiver.setPercentageContent(newPercentageContent)
-  
+      var tC = transfuserCylinder;
+      var rC = receiverCylinder;
       var cylinderCandidate;
-    
       if(!transfuserCylinder && !receiverCylinder) {
         for(var i = 0, len = Cylinder.prototype.cylinders.length; i < len; i++) {
           cylinderCandidate = Cylinder.prototype.cylinders[i];
@@ -178,28 +172,47 @@
         mousedownParent(transfuserCylinder);
       }
 
-
-      if(transfuserCylinder.container.isDraggable){
-        transfuserCylinder.undraggable();
-      }
-
-      if(receiverCylinder.container.isDraggable){
-        receiverCylinder.undraggable(); 
-      }
-      
-      if (hasAnimation) {
-        transfuserCylinder.animate({ content: { percentage: transfuser.setPercentageFromVolumen(exceededVolumen) }}, transfuserCylinder);
-        receiverCylinder.animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);        
+      if(transfuserCylinder.parent && !transfuserCylinder.parent.content.isEmpty()) {
+        self.transfer(transfuserCylinder.parent.content, receiver, hasAnimation, transfuserCylinder.parent, receiverCylinder);
       } else {
-        transfuserCylinder.attr({ content: { percentage: transfuser.setPercentageFromVolumen(exceededVolumen) }}, transfuserCylinder);
-        receiverCylinder.attr({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);        
+
+        var toTransfer = +transfuser.getRealVolumen();
+        var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
+
+        var receiverMaxVolumen = +receiver.getMaxVolumen();
+        var exceededVolumen = receiverNewVolumen > receiverMaxVolumen ? receiverNewVolumen - receiverMaxVolumen : 0.00001;
+
+        if(transfuserCylinder.container.isDraggable){
+          transfuserCylinder.undraggable();
+        }
+
+        if(receiverCylinder.container.isDraggable){
+          receiverCylinder.undraggable(); 
+        }
+        
+        transfuserCylinder.transfuser = true;
+        transfuserCylinder.transfuserData = {
+          exceededVolumen: exceededVolumen,
+          receiverNewVolumen: receiverNewVolumen,
+          receiverMaxVolumen: receiverMaxVolumen,
+          hasAnimation: hasAnimation,
+          receiver: receiver,
+          receiverCylinder: receiverCylinder
+        };
+
+        if (hasAnimation) {
+          transfuserCylinder.animate({ content: { percentage: transfuser.setPercentageFromVolumen(exceededVolumen) }}, transfuserCylinder);
+          receiverCylinder.animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);        
+        } else {
+          transfuserCylinder.attr({ content: { percentage: transfuser.setPercentageFromVolumen(exceededVolumen) }}, transfuserCylinder);
+          receiverCylinder.attr({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);        
+        }
+
       }
-      
     }
 
     var afterTransferCallback = function() {
       if(!this) return;
-      var self = this;
       this.content.updateVolumenText();
       if(this.container.isDraggable) {
         this.draggable();
@@ -210,6 +223,14 @@
       mouseUpParent(this);
       mouseUpChildren(this);
 
+      if(this.transfuser) {
+        if(this.transfuserData.exceededVolumen === 0.00001 && this.transfuserData.receiverNewVolumen < this.transfuserData.receiverMaxVolumen && this.child) {
+          self.transfer(this.child.content, this.transfuserData.receiver, this.transfuserData.hasAnimation, this.child, this.transfuserData.receiverCylinder);
+        } else {
+          delete this.transfuser;
+          delete this.transfuserData;
+        }
+      }
     }
 
     var mousedownParent = function(cylinderInstance) {
@@ -394,9 +415,9 @@
           animationObjectForBase['fill'] = newColor;
         }
 
-        var animateObject = Raphael.animation(animationObjectForContainer, settingsForContent['ms'] || 1000, '<>', afterTransferCallback.bind(cylinderToCallback));
+        var animateObject = Raphael.animation(animationObjectForContainer, settingsForContent['ms'] || 1000, '<', afterTransferCallback.bind(cylinderToCallback));
         var elementObject = content.containerElement.animate(animateObject);
-        content.topElement.animateWith(elementObject, animateObject, animationObjectForTop, settingsForContent['ms'] || 1000, '<>');
+        content.topElement.animateWith(elementObject, animateObject, animationObjectForTop, settingsForContent['ms'] || 1000, '<');
       }
     }
 
