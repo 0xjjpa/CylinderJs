@@ -149,7 +149,7 @@
       this.baseElement.undrag();
     }
 
-    this.transfer = function(transfuser, receiver) {
+    this.transfer = function(transfuser, receiver, hasAnimation) {
       var toTransfer = +transfuser.getRealVolumen();
       var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
 
@@ -177,8 +177,14 @@
         receiverCylinder.undraggable(); 
       }
       
-      transfuserCylinder.animate({ content: { percentage: transfuser.setPercentageFromVolumen(exceededVolumen) }}, transfuserCylinder);
-      receiverCylinder.animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);      
+      if (hasAnimation) {
+        transfuserCylinder.animate({ content: { percentage: transfuser.setPercentageFromVolumen(exceededVolumen) }}, transfuserCylinder);
+        receiverCylinder.animate({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);        
+      } else {
+        transfuserCylinder.attr({ content: { percentage: transfuser.setPercentageFromVolumen(exceededVolumen) }}, transfuserCylinder);
+        receiverCylinder.attr({ content: { percentage: receiver.setPercentageFromVolumen(receiverNewVolumen) }}, receiverCylinder);        
+      }
+      
     }
 
     var afterTransferCallback = function() {
@@ -384,9 +390,24 @@
       if(!attrSettings) return;
       if(attrSettings['content'] && this.content) {
         var settingsForContent = attrSettings['content'];
+        var content = this.content;
+
+        if(settingsForContent['percentage']|| +settingsForContent['percentage'] >= 0) {
+          var newPercentage = settingsForContent['percentage'];
+          newPercentage = newPercentage > 100 ? 100 : newPercentage;
+          self.setPercentageContent(newPercentage);
+          content.constructPoints();
+          content.containerElement.attr({path: content.getPathMatrixForContainer().join(',')});
+          content.topElement.attr({
+            cx: content.getTopCx(), 
+            cy: content.getTopCy(), 
+            rx: content.getTopRx(),
+            ry: content.getTopRy()
+          });
+        }
+
         if(settingsForContent['fill']) {
-          var newFill = settingsForContent['fill'];
-          var content = this.content;
+          var newFill = settingsForContent['fill'];          
           content.attr({fill: newFill});
         }
       } 
@@ -453,7 +474,7 @@
         var otherContainer = Cylinder.prototype.selectedTarget;
         Cylinder.prototype.selectedTarget = this.parent;
         if(otherContainer && otherContainer.isTransferable && this.parent.isTransferable) {
-          self.transfer(otherContainer, this.parent);
+          self.transfer(otherContainer, this.parent, true);
           otherContainer.onMouseUp();
           this.parent.onMouseUp();
           delete Cylinder.prototype.selectedTarget;
@@ -483,6 +504,10 @@
     self.cylinder.update = function() {
       if (this.content) this.content.update();
       this.container.update();
+    }
+
+    self.cylinder.sendBottom = function() {
+
     }
 
     self.cylinder.joinBottom = function(cylinderInstance) {
