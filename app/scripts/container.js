@@ -52,7 +52,7 @@ function Container() {
   this.getBaseCy = function() { return self.getY()+self.containerHeight }
   this.getBaseRx = function() { return self.bottomWidth }
 
-  this.getPathMatrixForContainerWithoutEllipse = function() {
+  this.getPathMatrixForContainer = function() {
     return [
     ["M", self.startPointInX, self.startPointInY],
     ["A", self.topWidth, self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
@@ -62,7 +62,17 @@ function Container() {
     ];
   }
 
-  this.getPathMatrixForContainer = function() {
+  this.getPathMatrixForContainerJoined = function() {
+    return [
+    ["M", self.startPointInX, self.startPointInY],
+    ["M", self.topLinePathX, self.topLinePathY],
+    ["L", self.rightLinePathX, self.rightLinePathY],
+    ["M", self.bottomLinePathX, self.bottomLinePathY],
+    ["L", self.leftLinePathX, self.leftLinePathY]
+    ];
+  }
+
+  this.getPathMatrixForContainerWithoutEllipse = function() {
     return [
     ["M", self.startPointInX, self.startPointInY],
     ["M", self.topLinePathX, self.topLinePathY],

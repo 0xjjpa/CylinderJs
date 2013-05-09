@@ -4,6 +4,7 @@ function Content() {
     this.containerElement = null;
     this.topElement = null;
     this.baseElement = null;
+    this.hidden = false;
 
     this.mousedown = function(start) {
       self.topElement.mousedown(start);
@@ -97,6 +98,19 @@ function Content() {
     self.baseElement.parent = self;
   }
 
+  this.checkIfNeedsToBeHidden = function() {
+    if(self.getPercentageContent() < 0.001) {
+      self.hideContent();
+    }
+  }
+
+  this.drawContent = function() {
+    this.drawContainer();
+    this.drawBase();
+    this.drawTop();
+    this.checkIfNeedsToBeHidden();
+  }
+
   this.writeVolumen = function(textContent) {
     var textCords = self.getCordsArrayForText();
     self.textElement = this.paper.text(
@@ -115,6 +129,19 @@ function Content() {
       this.getPathMatrixForContainer()
       ).attr({fill: "rgba(255,255,255, 0)"});
     self.containerElement.parent = self;
+  }
+
+  this.hideContent = function() {
+    self.containerElement.hide();
+    self.baseElement.hide();
+    self.topElement.hide();
+    self.hidden = true;
+  }
+  this.showContent = function() {
+    self.containerElement.show(); 
+    self.baseElement.show();
+    self.topElement.show();
+    self.hidden = false;
   }
 
   this.debug = function() {

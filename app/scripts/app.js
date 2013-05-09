@@ -5,12 +5,12 @@ var y = 50;
 var containerHeight = 60;
 var topWidth = 55;
 var bottomWidth = 40;
-var yRotation = 30; 
+var yRotation = 50; 
 
 
-var c3 = rsr.cylinder(x, y, topWidth-20, bottomWidth, containerHeight+20, yRotation+20, true, 70);
-var c4 = rsr.cylinder(x+200, y, topWidth-15, bottomWidth, containerHeight, yRotation, true, 50);
-var c5 = rsr.cylinder(x, y+180, topWidth-30, bottomWidth-20, containerHeight+20, yRotation+20, true, 70);
+var c3 = rsr.cylinder(x, y, topWidth-20, bottomWidth, containerHeight+20, yRotation, true, 70);
+var c4 = rsr.cylinder(x+200, y, topWidth-20, bottomWidth, containerHeight, yRotation, true, 50);
+var c5 = rsr.cylinder(x, y+0, topWidth-30, bottomWidth-20, containerHeight+20, yRotation, true, 0);
 
 /*
 c1.attr(
@@ -26,7 +26,7 @@ c1.attr(
 */
 
 //c2.attr({content: {fill: "rgb(0, 0, 255)"}})
-c3.attr({content: {fill: "rgba(255, 255, 0, 1)"}})
+c3.attr({content: {fill: "rgba(0, 200, 159, 1)"}})
 c4.attr({content: {fill: "rgba(0, 200, 159, 1)"}})
 c5.attr({content: {fill: "rgba(0, 200, 159, 1)"}})
 // c6.attr({content: {fill: "rgb(255, 187, 0)"}})
@@ -49,7 +49,8 @@ c5.attr({content: {fill: "rgba(0, 200, 159, 1)"}})
 //c1.draggable();
 //c3.draggable();
 
-c5.joinBottom(c4);
+//c5.joinBottom(c4);
+c4.joinBottom(c3);
 
 c3.draggable();
 c4.draggable();

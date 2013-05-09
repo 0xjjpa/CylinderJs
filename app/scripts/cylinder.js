@@ -117,7 +117,7 @@
     };
 
     this.getCylinderAngle = function() {
-      return Math.atan(self.ellipsesDifference()/self.containerHeight);
+      return Math.atan(self.ellipsesDifference()/self.getContainerHeight());
     }
 
     this.getTopContentWidth = function() {
@@ -149,7 +149,7 @@
       this.baseElement.undrag();
     }
 
-    this.transfer = function(transfuser, receiver, hasAnimation) {
+    this.transfer = function(transfuser, receiver, hasAnimation, transfuserCylinder, receiverCylinder) {
       var toTransfer = +transfuser.getRealVolumen();
       var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
 
@@ -157,15 +157,17 @@
       var exceededVolumen = receiverNewVolumen > receiverMaxVolumen ? receiverNewVolumen - receiverMaxVolumen : 0.00001;
 
       //receiver.setPercentageContent(newPercentageContent)
+  
+      var cylinderCandidate;
     
-      var cylinderCandidate, transfuserCylinder, receiverCylinder;
-    
-      for(var i = 0, len = Cylinder.prototype.cylinders.length; i < len; i++) {
-        cylinderCandidate = Cylinder.prototype.cylinders[i];
-        if(cylinderCandidate.content === transfuser) {
-          transfuserCylinder = cylinderCandidate;
-        } else if (cylinderCandidate.content === receiver) {
-          receiverCylinder = cylinderCandidate;
+      if(!transfuserCylinder && !receiverCylinder) {
+        for(var i = 0, len = Cylinder.prototype.cylinders.length; i < len; i++) {
+          cylinderCandidate = Cylinder.prototype.cylinders[i];
+          if(cylinderCandidate.content === transfuser) {
+            transfuserCylinder = cylinderCandidate;
+          } else if (cylinderCandidate.content === receiver) {
+            receiverCylinder = cylinderCandidate;
+          }
         }
       }
 
@@ -194,6 +196,7 @@
       if(this.container.isDraggable) {
         this.draggable();
       }
+      this.content.checkIfNeedsToBeHidden();
     }
 
     var mousedownParent = function(cylinderInstance) {
@@ -344,9 +347,7 @@
 
     if(this.hasContent) {
       self.cylinder.content = new Content();
-      self.cylinder.content.drawContainer();
-      self.cylinder.content.drawBase();
-      self.cylinder.content.drawTop();
+      self.cylinder.content.drawContent();
       self.cylinder.content.writeVolumen();
     } 
 
@@ -386,7 +387,7 @@
       }
     }
 
-    self.cylinder.attr = function(attrSettings) {
+    self.cylinder.attr = function(attrSettings, cylinderToCallback) {
       if(!attrSettings) return;
       if(attrSettings['content'] && this.content) {
         var settingsForContent = attrSettings['content'];
@@ -419,6 +420,10 @@
           self.cylinder.prototype.setTopWidth(newTopWidth);
           self.cylinder.update();
         }
+      }
+
+      if(cylinderToCallback) {
+        afterTransferCallback.apply(cylinderToCallback);  
       }
     }
 
@@ -465,18 +470,30 @@
 
     var transferStart = function() {
       this.parent.onMouseDown();
-      if(Cylinder.prototype.selectedTarget === this.parent) {
+      var parent, isContainer;
+      if(this.parent.instanceof === "Container") {
+        parent = self.cylinder.content;
+        if(parent.hidden) parent.showContent();
+        isContainer = true;
+      }
+
+      if(!parent) parent = this.parent;
+      parent.checkIfNeedsToBeHidden();
+
+      if(Cylinder.prototype.selectedTarget === parent) {
         // Same container
         delete Cylinder.prototype.selectedTarget;
-        this.parent.onMouseUp();
+        parent.onMouseUp();
       } else {
         // Other container
         var otherContainer = Cylinder.prototype.selectedTarget;
-        Cylinder.prototype.selectedTarget = this.parent;
-        if(otherContainer && otherContainer.isTransferable && this.parent.isTransferable) {
-          self.transfer(otherContainer, this.parent, true);
+        Cylinder.prototype.selectedTarget = parent;
+        if(otherContainer && otherContainer.isTransferable && parent.isTransferable) {
+          self.transfer(otherContainer, parent, true);
           otherContainer.onMouseUp();
-          this.parent.onMouseUp();
+          parent.onMouseUp();
+          parent.showContent();
+          if(isContainer) this.parent.onMouseUp();
           delete Cylinder.prototype.selectedTarget;
         }
       }
@@ -497,6 +514,7 @@
       if(this.content) {
         this.content.mousedown(transferStart)
       }
+      this.container.mousedown(transferStart);
       return this;
     }
     
@@ -506,8 +524,9 @@
       this.container.update();
     }
 
-    self.cylinder.sendBottom = function() {
-
+    self.cylinder.sendBottom = function(parent, child) {
+      if(parent.parent) self.cylinder.sendBottom(parent.parent, child);
+      self.transfer(parent.content, child.content, false, parent, child);  
     }
 
     self.cylinder.joinBottom = function(cylinderInstance) {
@@ -516,9 +535,10 @@
       cylinderInstance.prototype.setX(this.prototype.getX());
       cylinderInstance.prototype.setY(this.prototype.getY()+this.prototype.getContainerHeight());
       cylinderInstance.prototype.setTopWidth(this.prototype.getBottomWidth());
-      cylinderInstance.container.topElement.remove();
+      //cylinderInstance.container.topElement.remove();
       this.container.baseElement.remove();
       cylinderInstance.update();
+      cylinderInstance.sendBottom(this, cylinderInstance);
       return this;
     }
     
