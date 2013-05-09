@@ -169,7 +169,15 @@
             receiverCylinder = cylinderCandidate;
           }
         }
+        if(transfuserCylinder.container.joined && receiverCylinder.container.joined) return;
+        transfuserCylinder.container.onMouseDown();
+        receiverCylinder.container.onMouseDown();
+        mousedownChildren(receiverCylinder);
+        mousedownParent(receiverCylinder);
+        mousedownChildren(transfuserCylinder);
+        mousedownParent(transfuserCylinder);
       }
+
 
       if(transfuserCylinder.container.isDraggable){
         transfuserCylinder.undraggable();
@@ -197,6 +205,11 @@
         this.draggable();
       }
       this.content.checkIfNeedsToBeHidden();
+      this.container.onMouseUp();
+      this.content.onMouseUp();
+      mouseUpParent(this);
+      mouseUpChildren(this);
+
     }
 
     var mousedownParent = function(cylinderInstance) {
@@ -430,7 +443,10 @@
     var dragStart = function() {
       //Hide Text
       this.onMouseDown();
-      if(self.cylinder.content) self.cylinder.content.onMouseDown();
+      if(self.cylinder.content) {
+        self.cylinder.content.onMouseDown();
+        self.cylinder.content.checkIfNeedsToBeHidden();
+      }
       mousedownParent(self.cylinder);
       mousedownChildren(self.cylinder);
       this.setOx(this.getX());
@@ -440,9 +456,13 @@
     }
 
     var dragMove = function(dx, dy) {
+      this.onMouseDown();
+      mousedownParent(self.cylinder);
+      mousedownChildren(self.cylinder);
       if(!this || !self) return;
+      if(self.cylinder.content)  self.cylinder.content.checkIfNeedsToBeHidden();
       self.setX(this.getOx() + dx);
-      self.setY(this.getOy() + dy);     
+      self.setY(this.getOy() + dy);
       moveChildren(self.cylinder, dx, dy);
       moveParent(self.cylinder, dx, dy);
       self.updateElements(self.cylinder);
@@ -450,7 +470,11 @@
 
     var dragUp = function() {
       this.onMouseUp();
-      if(self.cylinder.content) self.cylinder.content.onMouseUp();
+      if(self.cylinder.content) {
+        self.cylinder.content.onMouseUp();
+        self.cylinder.content.checkIfNeedsToBeHidden();
+      }
+      self.cylinder.container.onMouseUp();
       mouseUpParent(self.cylinder);
       mouseUpChildren(self.cylinder);
     }
@@ -470,11 +494,13 @@
 
     var transferStart = function() {
       this.parent.onMouseDown();
-      var parent, isContainer;
+      self.cylinder.container.onMouseDown();
+      mousedownParent(self.cylinder);
+      mousedownChildren(self.cylinder);
+      var parent;
       if(this.parent.instanceof === "Container") {
         parent = self.cylinder.content;
         if(parent.hidden) parent.showContent();
-        isContainer = true;
       }
 
       if(!parent) parent = this.parent;
@@ -490,10 +516,8 @@
         Cylinder.prototype.selectedTarget = parent;
         if(otherContainer && otherContainer.isTransferable && parent.isTransferable) {
           self.transfer(otherContainer, parent, true);
-          otherContainer.onMouseUp();
-          parent.onMouseUp();
           parent.showContent();
-          if(isContainer) this.parent.onMouseUp();
+          
           delete Cylinder.prototype.selectedTarget;
         }
       }
@@ -535,9 +559,19 @@
       cylinderInstance.prototype.setX(this.prototype.getX());
       cylinderInstance.prototype.setY(this.prototype.getY()+this.prototype.getContainerHeight());
       cylinderInstance.prototype.setTopWidth(this.prototype.getBottomWidth());
-      //cylinderInstance.container.topElement.remove();
+      cylinderInstance.container.topElement.remove();
+
+      //this.content.baseElement.remove();
+      //cylinderInstance.content.topElement.remove();
+
       this.container.baseElement.remove();
+
+      cylinderInstance.container.joined = true;      
+      this.container.joined = true;      
+
+      this.update();
       cylinderInstance.update();
+
       cylinderInstance.sendBottom(this, cylinderInstance);
       return this;
     }

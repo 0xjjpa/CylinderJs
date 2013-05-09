@@ -1,6 +1,7 @@
 function Container() {
   var self = this;
   this.instanceof = "Container";
+  this.joined = false;
   this.containerElement = null;
   this.topElement = null;
   this.baseElement = null;
@@ -29,7 +30,8 @@ function Container() {
     self.constructPoints();
     self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy() });
     self.baseElement.attr({cx: self.getBaseCx(), cy: self.getBaseCy(), rx: self.getBaseRx(), ry: self.getBaseRy() });
-    self.containerElement.attr({path: self.getPathMatrixForContainerWithoutEllipse() });
+    var path = this.joined ? self.getPathMatrixForContainerWithoutEllipse() : self.getPathMatrixForContainer();
+    self.containerElement.attr({path: path });
   }
 
   this.constructPoints = function() {
@@ -98,7 +100,7 @@ function Container() {
 
   this.drawContainer = function() {
     self.containerElement = this.paper.path(
-      self.getPathMatrixForContainerWithoutEllipse()
+      self.getPathMatrixForContainer()
       ).attr({fill: "rgba(255,255,255, 0)"});
     self.containerElement.parent = self;
   }
