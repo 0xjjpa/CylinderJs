@@ -151,6 +151,8 @@
 
     this.transfer = function(transfuser, receiver, hasAnimation, transfuserCylinder, receiverCylinder) {
       if(!transfuser || !receiver) return;
+      transfuser.showContent();
+      receiver.showContent();
       //receiver.setPercentageContent(newPercentageContent)
       var tC = transfuserCylinder;
       var rC = receiverCylinder;
@@ -175,6 +177,8 @@
 
       if(transfuserCylinder.parent && !transfuserCylinder.parent.content.isEmpty()) {
         self.transfer(transfuserCylinder.parent.content, receiver, hasAnimation, transfuserCylinder.parent, receiverCylinder);
+      } else if (receiverCylinder.child && !receiverCylinder.child.content.isFull()) {
+        self.transfer(transfuser, receiverCylinder.child.content, hasAnimation, transfuserCylinder, receiverCylinder.child);
       } else {
         var toTransfer = +transfuser.getRealVolumen();
         var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
@@ -212,15 +216,17 @@
     }
 
     var areCylindersJoined = function(cylinder1, cylinder2) {
+      if(cylinder1 === cylinder2) return true;
+      if(!cylinder1 || !cylinder2) return false;
       var areThey = (cylinder1.container.joined === cylinder2.container.transferId &&
               cylinder2.container.joined === cylinder1.container.transferId);
       return areThey;
     }
 
     var areContentsJoined = function(content1, content2) {
+      if(content1 === content2) return true;
       var areThey = (content1.joined === content2.transferId &&
               content2.joined === content1.transferId);
-      console.log(content1);
       return areThey;
     }
 
@@ -237,6 +243,7 @@
       mouseUpChildren(this);
 
       if(this.transfuser) {
+        //Case Cylinder A ---> Cylinder B and B is not full yet.
         if(this.transfuserData.exceededVolumen === 0.00001 && 
           this.transfuserData.receiverNewVolumen < this.transfuserData.receiverMaxVolumen &&
            this.child &&
@@ -273,7 +280,7 @@
 
     var mouseUpParent = function(cylinderInstance) {
       if(cylinderInstance.parent) {
-        cylinderInstance.parent.content.onMouseUp();
+        if(!cylinderInstance.parent.content.isEmpty()) cylinderInstance.parent.content.onMouseUp();        
         cylinderInstance.parent.container.onMouseUp();
         mouseUpParent(cylinderInstance.parent);
       }
@@ -281,7 +288,7 @@
 
     var mouseUpChildren = function(cylinderInstance) {
       if(cylinderInstance.child) {
-        cylinderInstance.child.content.onMouseUp();
+        if(!cylinderInstance.child.content.isEmpty()) cylinderInstance.child.content.onMouseUp();
         cylinderInstance.child.container.onMouseUp();
         mouseUpChildren(cylinderInstance.child);
       }
@@ -404,9 +411,9 @@
       self.cylinder.content = new Content();
       self.cylinder.container = new Container();
 
-      self.cylinder.content.drawContent();
       self.cylinder.container.drawContainer();
       self.cylinder.container.drawBase();  
+      self.cylinder.content.drawContent();
       self.cylinder.content.writeVolumen();
       self.cylinder.container.drawTop();
     } else {
@@ -523,7 +530,7 @@
     var dragUp = function() {
       this.onMouseUp();
       if(self.cylinder.content) {
-        self.cylinder.content.onMouseUp();
+        if(!self.cylinder.content.isEmpty()) self.cylinder.content.onMouseUp();        
         self.cylinder.content.checkIfNeedsToBeHidden();
       }
       self.cylinder.container.onMouseUp();
@@ -544,12 +551,11 @@
       return this;
     }
 
-    var transferStart = function() {
-      console.log("TS")
+    var transferStart = function() {      
       self.cylinder.container.onMouseDown();
       mousedownParent(self.cylinder);
       mousedownChildren(self.cylinder);
-      var parent;
+      var parent;      
       if(this.parent.instanceof === "Container") {
         parent = self.cylinder.content;
         if(parent.hidden && !parent.isEmpty()) parent.showContent();
@@ -562,22 +568,30 @@
       if(!parent) parent = this.parent;
       parent.checkIfNeedsToBeHidden();
 
+
       if(Cylinder.prototype.selectedTarget === parent) {
         // Same container
         delete Cylinder.prototype.selectedTarget;
-        parent.onMouseUp();
+        if(!parent.isEmpty()) parent.onMouseUp();
       } else {
         // Other container
         var otherContainer = Cylinder.prototype.selectedTarget;
         Cylinder.prototype.selectedTarget = parent;
+        
+
         if(otherContainer && 
           otherContainer.isTransferable &&
           parent.isTransferable && 
           !otherContainer.isEmpty() &&
           !areContentsJoined(otherContainer, parent)
           ) {
+          console.log("Transfer complete")
           self.transfer(otherContainer, parent, true);
-          parent.showContent();
+          if(!parent.isEmpty()) {
+            parent.showContent();
+            mouseUpParent(parent);
+            mouseUpChildren(parent);
+          }
           delete Cylinder.prototype.selectedTarget;
         }
       }
@@ -600,7 +614,7 @@
 
       Cylinder.prototype.cylinders.push(this);
 
-      if(this.content && !this.content.hidden) {
+      if(this.content) {
         this.content.mousedown(transferStart)
       }
       this.container.mousedown(transferStart);
@@ -626,8 +640,18 @@
       
       if(this.content && !this.content.transferId) {
         this.content.transferId = Cylinder.prototype.ids++;
+        this.content.isTransferable = true;
       } else if (!this.container.transferId) {
         this.container.transferId = Cylinder.prototype.ids++;
+        this.container.isTransferable = true;
+      }
+
+      if(cylinderInstance.content && !cylinderInstance.content.transferId) {
+        cylinderInstance.content.transferId = Cylinder.prototype.ids++;
+        cylinderInstance.content.isTransferable = true;
+      } else if (!cylinderInstance.container.transferId) {
+        cylinderInstance.container.transferId = Cylinder.prototype.ids++;
+        cylinderInstance.container.isTransferable = true;
       }
 
       cylinderInstance.parent = this;
@@ -646,7 +670,6 @@
       this.container.joined = cylinderInstance.content ? cylinderInstance.content.transferId : cylinderInstance.container.transferId;      
       cylinderInstance.content.joined = cylinderInstance.container.joined;
       this.content.joined = this.container.joined;
-      console.log(this.content.transferId)
 
       this.update();
       cylinderInstance.update();

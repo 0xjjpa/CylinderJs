@@ -102,6 +102,10 @@ function Content() {
     return self.getPercentageContent() < 0.001; 
   }
 
+  this.isFull = function() {
+    return self.getMaxVolumen() === self.getRealVolumen();
+  }
+
   this.checkIfNeedsToBeHidden = function() {
     if(self.isEmpty()) {
       self.hideContent();
