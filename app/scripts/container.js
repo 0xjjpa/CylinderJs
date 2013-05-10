@@ -1,7 +1,7 @@
 function Container() {
   var self = this;
   this.instanceof = "Container";
-  this.joined = false;
+  this.joined = 0;
   this.containerElement = null;
   this.topElement = null;
   this.baseElement = null;
@@ -30,7 +30,7 @@ function Container() {
     self.constructPoints();
     self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy() });
     self.baseElement.attr({cx: self.getBaseCx(), cy: self.getBaseCy(), rx: self.getBaseRx(), ry: self.getBaseRy() });
-    var path = this.joined ? self.getPathMatrixForContainerWithoutEllipse() : self.getPathMatrixForContainer();
+    var path = this.joined > 0 ? self.getPathMatrixForContainer() : self.getPathMatrixForContainer();
     self.containerElement.attr({path: path });
   }
 

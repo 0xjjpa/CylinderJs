@@ -150,6 +150,7 @@
     }
 
     this.transfer = function(transfuser, receiver, hasAnimation, transfuserCylinder, receiverCylinder) {
+      if(!transfuser || !receiver) return;
       //receiver.setPercentageContent(newPercentageContent)
       var tC = transfuserCylinder;
       var rC = receiverCylinder;
@@ -210,6 +211,19 @@
       }
     }
 
+    var areCylindersJoined = function(cylinder1, cylinder2) {
+      var areThey = (cylinder1.container.joined === cylinder2.container.transferId &&
+              cylinder2.container.joined === cylinder1.container.transferId);
+      return areThey;
+    }
+
+    var areContentsJoined = function(content1, content2) {
+      var areThey = (content1.joined === content2.transferId &&
+              content2.joined === content1.transferId);
+      console.log(content1);
+      return areThey;
+    }
+
     var afterTransferCallback = function() {
       if(!this) return;
       this.content.updateVolumenText();
@@ -223,13 +237,16 @@
       mouseUpChildren(this);
 
       if(this.transfuser) {
-        if(this.transfuserData.exceededVolumen === 0.00001 && this.transfuserData.receiverNewVolumen < this.transfuserData.receiverMaxVolumen && this.child) {
+        if(this.transfuserData.exceededVolumen === 0.00001 && 
+          this.transfuserData.receiverNewVolumen < this.transfuserData.receiverMaxVolumen &&
+           this.child &&
+           !areCylindersJoined(this, this.transfuserData.receiverCylinder.parent)
+           ) {
           self.transfer(this.child.content, this.transfuserData.receiver, this.transfuserData.hasAnimation, this.child, this.transfuserData.receiverCylinder);
         } else if(this.transfuserData.exceededVolumen > 0.00001 && 
           this.transfuserData.receiverNewVolumen > this.transfuserData.receiverMaxVolumen &&
            this.transfuserData.receiverCylinder.parent &&
-           !(this.container.joined && this.transfuserData.receiverCylinder.parent.container.joined)
-           ) {
+           !areCylindersJoined(this, this.transfuserData.receiverCylinder.parent)) {
           this.transfuserData.receiverCylinder.parent.content.showContent();
           self.transfer(this.content, this.transfuserData.receiverCylinder.parent.content, this.transfuserData.hasAnimation, this, this.transfuserData.receiverCylinder.parent);
         } 
@@ -380,17 +397,26 @@
     self.cylinder = {};
     self.cylinder.prototype = self;
 
-    self.cylinder.container = new Container();
-    self.cylinder.container.drawContainer();
-    self.cylinder.container.drawBase();
+    
+    
 
     if(this.hasContent) {
       self.cylinder.content = new Content();
-      self.cylinder.content.drawContent();
-      self.cylinder.content.writeVolumen();
-    } 
+      self.cylinder.container = new Container();
 
-    self.cylinder.container.drawTop();
+      self.cylinder.content.drawContent();
+      self.cylinder.container.drawContainer();
+      self.cylinder.container.drawBase();  
+      self.cylinder.content.writeVolumen();
+      self.cylinder.container.drawTop();
+    } else {
+      self.cylinder.container = new Container();
+      self.cylinder.container.drawContainer();
+      self.cylinder.container.drawBase();  
+      self.cylinder.container.drawTop();
+    }
+
+    
 
     self.cylinder.animate = function(animationSettings, cylinderToCallback) {
       if(!animationSettings) return;
@@ -519,14 +545,18 @@
     }
 
     var transferStart = function() {
-      this.parent.onMouseDown();
+      console.log("TS")
       self.cylinder.container.onMouseDown();
       mousedownParent(self.cylinder);
       mousedownChildren(self.cylinder);
       var parent;
       if(this.parent.instanceof === "Container") {
         parent = self.cylinder.content;
-        if(parent.hidden) parent.showContent();
+        if(parent.hidden && !parent.isEmpty()) parent.showContent();
+      }
+
+      if(!this.parent.instanceof === "Content") {
+        this.parent.onMouseDown();
       }
 
       if(!parent) parent = this.parent;
@@ -540,10 +570,14 @@
         // Other container
         var otherContainer = Cylinder.prototype.selectedTarget;
         Cylinder.prototype.selectedTarget = parent;
-        if(otherContainer && otherContainer.isTransferable && parent.isTransferable) {
+        if(otherContainer && 
+          otherContainer.isTransferable &&
+          parent.isTransferable && 
+          !otherContainer.isEmpty() &&
+          !areContentsJoined(otherContainer, parent)
+          ) {
           self.transfer(otherContainer, parent, true);
           parent.showContent();
-          
           delete Cylinder.prototype.selectedTarget;
         }
       }
@@ -553,15 +587,20 @@
     self.cylinder.transferable = function() {
       if(!Cylinder.prototype.cylinders) {
         Cylinder.prototype.cylinders = [];
-        Cylinder.prototype.ids = 0;
+        Cylinder.prototype.ids = 1;
       }
-      if(this.content) {
+
+      if(this.content && !this.content.transferId) {
         this.content.transferId = Cylinder.prototype.ids++;
         this.content.isTransferable = true;
+      } else if (!this.container.transferId) {
+        this.container.transferId = Cylinder.prototype.ids++;
+        this.container.isTransferable = true;
       }
+
       Cylinder.prototype.cylinders.push(this);
 
-      if(this.content) {
+      if(this.content && !this.content.hidden) {
         this.content.mousedown(transferStart)
       }
       this.container.mousedown(transferStart);
@@ -580,6 +619,17 @@
     }
 
     self.cylinder.joinBottom = function(cylinderInstance) {
+      if(!Cylinder.prototype.cylinders) {
+        Cylinder.prototype.cylinders = [];
+        Cylinder.prototype.ids = 1;
+      }
+      
+      if(this.content && !this.content.transferId) {
+        this.content.transferId = Cylinder.prototype.ids++;
+      } else if (!this.container.transferId) {
+        this.container.transferId = Cylinder.prototype.ids++;
+      }
+
       cylinderInstance.parent = this;
       this.child = cylinderInstance;
       cylinderInstance.prototype.setX(this.prototype.getX());
@@ -592,8 +642,11 @@
 
       this.container.baseElement.remove();
 
-      cylinderInstance.container.joined = true;      
-      this.container.joined = true;      
+      cylinderInstance.container.joined = this.content ? this.content.transferId : this.container.transferId;      
+      this.container.joined = cylinderInstance.content ? cylinderInstance.content.transferId : cylinderInstance.container.transferId;      
+      cylinderInstance.content.joined = cylinderInstance.container.joined;
+      this.content.joined = this.container.joined;
+      console.log(this.content.transferId)
 
       this.update();
       cylinderInstance.update();
