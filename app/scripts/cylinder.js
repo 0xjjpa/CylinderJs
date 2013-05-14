@@ -151,8 +151,9 @@
 
     this.transfer = function(transfuser, receiver, hasAnimation, transfuserCylinder, receiverCylinder) {
       if(!transfuser || !receiver) return;
-      transfuser.showContent();
-      receiver.showContent();
+      console.log(arguments);
+      if(!transfuser.isEmpty() || transfuserCylinder) transfuser.showContent();
+      if(!receiver.isEmpty() || transfuserCylinder) receiver.showContent();
       //receiver.setPercentageContent(newPercentageContent)
       var tC = transfuserCylinder;
       var rC = receiverCylinder;
@@ -579,11 +580,14 @@
         var otherContainer = Cylinder.prototype.selectedTarget;
         Cylinder.prototype.selectedTarget = parent;
         
-
+        if(otherContainer) {
+          //console.log(otherContainer.isTransferable);
+          //console.log(parent.isTransferable);
+          //console.log(!otherContainer.isEmpty());
+        }
         if(otherContainer && 
           otherContainer.isTransferable &&
           parent.isTransferable && 
-          !otherContainer.isEmpty() &&
           !areContentsJoined(otherContainer, parent)
           ) {
           otherContainer.debug();
