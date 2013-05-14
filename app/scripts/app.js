@@ -31,9 +31,9 @@ tuboBig.draggable();
 tuboBig.attr({	content: {fill: "rgba(90, 20, 230, 1)"}});
 
 
-var pipetaTop = rsr.cylinder(x, y+120, 10, 10, 80, 20, true, 90);
-var pipetaMain = rsr.cylinder(x, y+120, 6, 6, 40, 20, true, 90);
-var pipetaBottom = rsr.cylinder(x, y+120, 6, 6, 40, 20, true, 90);
+var pipetaTop = rsr.cylinder(x, y+120, 10, 10, 80, 20, true, 0);
+var pipetaMain = rsr.cylinder(x, y+120, 6, 6, 40, 20, true, 0);
+var pipetaBottom = rsr.cylinder(x, y+120, 6, 6, 40, 20, true, 0);
 
 pipetaTop.joinBottom(pipetaMain);
 pipetaMain.joinBottom(pipetaBottom);

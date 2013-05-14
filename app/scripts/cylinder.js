@@ -151,7 +151,7 @@
 
     this.transfer = function(transfuser, receiver, hasAnimation, transfuserCylinder, receiverCylinder) {
       if(!transfuser || !receiver) return;
-      console.log(arguments);
+      if(transfuserCylinder) transfuserCylinder.content.debug();
       if(!transfuser.isEmpty() || transfuserCylinder) transfuser.showContent();
       if(!receiver.isEmpty() || transfuserCylinder) receiver.showContent();
       //receiver.setPercentageContent(newPercentageContent)
@@ -177,8 +177,10 @@
       }
 
       if(transfuserCylinder.parent && !transfuserCylinder.parent.content.isEmpty()) {
+        transfuserCylinder.parent.transfuser = true;
         self.transfer(transfuserCylinder.parent.content, receiver, hasAnimation, transfuserCylinder.parent, receiverCylinder);
       } else if (receiverCylinder.child && !receiverCylinder.child.content.isFull()) {
+        transfuserCylinder.transfuser = true;
         self.transfer(transfuser, receiverCylinder.child.content, hasAnimation, transfuserCylinder, receiverCylinder.child);
       } else {
         var toTransfer = +transfuser.getRealVolumen();
@@ -242,6 +244,7 @@
       this.content.onMouseUp();
       mouseUpParent(this);
       mouseUpChildren(this);
+      var y = this.content.getY();
 
       if(this.transfuser) {
         //Case Cylinder A ---> Cylinder B and B is not full yet.
@@ -258,8 +261,8 @@
           this.transfuserData.receiverCylinder.parent.content.showContent();
           self.transfer(this.content, this.transfuserData.receiverCylinder.parent.content, this.transfuserData.hasAnimation, this, this.transfuserData.receiverCylinder.parent);
         } 
-        delete this.transfuser;
-        delete this.transfuserData;
+        //delete this.transfuser;
+        //delete this.transfuserData;
       }
     }
 
