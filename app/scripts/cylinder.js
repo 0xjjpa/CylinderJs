@@ -265,7 +265,7 @@
 
     var mousedownParent = function(cylinderInstance) {
       if(cylinderInstance.parent) {
-        cylinderInstance.parent.content.onMouseDown();
+        //cylinderInstance.parent.content.onMouseDown();
         cylinderInstance.parent.container.onMouseDown();
         mousedownParent(cylinderInstance.parent);
       }
@@ -273,7 +273,7 @@
 
     var mousedownChildren = function(cylinderInstance) {
       if(cylinderInstance.child) {
-        cylinderInstance.child.content.onMouseDown();
+        //cylinderInstance.child.content.onMouseDown();
         cylinderInstance.child.container.onMouseDown();
         mousedownChildren(cylinderInstance.child);
       }
