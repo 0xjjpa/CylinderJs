@@ -253,16 +253,16 @@
            this.child &&
            !areCylindersJoined(this, this.transfuserData.receiverCylinder.parent)
            ) {
+          this.transfuser = false;
           self.transfer(this.child.content, this.transfuserData.receiver, this.transfuserData.hasAnimation, this.child, this.transfuserData.receiverCylinder);
         } else if(this.transfuserData.exceededVolumen > 0.00001 && 
           this.transfuserData.receiverNewVolumen > this.transfuserData.receiverMaxVolumen &&
            this.transfuserData.receiverCylinder.parent &&
            !areCylindersJoined(this, this.transfuserData.receiverCylinder.parent)) {
           this.transfuserData.receiverCylinder.parent.content.showContent();
+          this.transfuser = false;
           self.transfer(this.content, this.transfuserData.receiverCylinder.parent.content, this.transfuserData.hasAnimation, this, this.transfuserData.receiverCylinder.parent);
         } 
-        //delete this.transfuser;
-        //delete this.transfuserData;
       }
     }
 
