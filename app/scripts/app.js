@@ -1,17 +1,39 @@
 var rsr = Raphael('cylinder', '600', '460');
 
-var x = 50;
-var y = 50;
+var x = 80;
+var y = 80;
+var topRx = 20;
+var topRy = 20;
+var baseRx = 30;
+var baseRy = 30;
+var containerHeight = 100;
+var topWidth = topRx*2;
+var bottomWidth = baseRx*2;
+var yRotation = 10;
 
+var getTopRy = topWidth*yRotation/bottomWidth;
+var getBaseRy = bottomWidth*yRotation/topWidth;
+
+// Container
+rsr.ellipse(x,y,topWidth,getTopRy);
+rsr.path([
+    ["M", x-topWidth, y],
+    ["A", topWidth, getTopRy, 0, 0, 0, x+topWidth, y],
+    ["L", x+bottomWidth, y+containerHeight],
+    ["A", bottomWidth, getBaseRy, 0, 0, 0, x-bottomWidth, y+containerHeight],
+    ["L", x-topWidth, y]
+    ]);
+rsr.ellipse(x, y+containerHeight, bottomWidth, getBaseRy);
+/*
 //Tubo de Ensayo
-var tubo = rsr.cylinder(x, y, 10, 10, 80, 30, true, 40);
+var tubo = rsr.cylinder(x, y, 10, 10, 80, 90, true, 40);
 
 tubo.transferable();
 tubo.draggable();
 tubo.attr({content: {fill: "rgba(40, 100, 159, 1)"}});
 
 //Matraz
-var matrazTop = rsr.cylinder(x+100, y, 10, 10, 30, 30, true, 40);
+var matrazTop = rsr.cylinder(x+100, y, 10, 10, 50, 20, true, 40);
 var matrazBottom = rsr.cylinder(x+100, y, 10, 40, 60, 90, true, 40);
 
 matrazTop.joinBottom(matrazBottom);
@@ -140,16 +162,3 @@ c4.transferable();
 c5.transferable();
 c6.transferable();
 */
-
-
-//c6.transferable();
-
-/*
-Volumen
-Transfer Content
-Join Cylinders
-*/
-
-
-
-//var workspace = rsr.rect(0,0, 550, 450);

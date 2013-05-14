@@ -169,10 +169,10 @@
         if(transfuserCylinder.container.joined && receiverCylinder.container.joined) return;
         transfuserCylinder.container.onMouseDown();
         receiverCylinder.container.onMouseDown();
-        mousedownChildren(receiverCylinder);
-        mousedownParent(receiverCylinder);
-        mousedownChildren(transfuserCylinder);
-        mousedownParent(transfuserCylinder);
+        mousedownChildren(receiverCylinder, true);
+        mousedownParent(receiverCylinder,true);
+        mousedownChildren(transfuserCylinder, true);
+        mousedownParent(transfuserCylinder,true);
       }
 
       if(transfuserCylinder.parent && !transfuserCylinder.parent.content.isEmpty()) {
@@ -262,19 +262,19 @@
       }
     }
 
-    var mousedownParent = function(cylinderInstance) {
+    var mousedownParent = function(cylinderInstance, fromContent) {
       if(cylinderInstance.parent) {
-        cylinderInstance.parent.content.onMouseDown();
+        if(!fromContent) cylinderInstance.parent.content.onMouseDown();
         cylinderInstance.parent.container.onMouseDown();
-        mousedownParent(cylinderInstance.parent);
+        mousedownParent(cylinderInstance.parent, fromContent);
       }
     }
 
-    var mousedownChildren = function(cylinderInstance) {
+    var mousedownChildren = function(cylinderInstance, fromContent) {
       if(cylinderInstance.child) {
-        cylinderInstance.child.content.onMouseDown();
+        if(!fromContent) cylinderInstance.child.content.onMouseDown();
         cylinderInstance.child.container.onMouseDown();
-        mousedownChildren(cylinderInstance.child);
+        mousedownChildren(cylinderInstance.child, fromContent);
       }
     }
 
@@ -553,16 +553,17 @@
 
     var transferStart = function() {      
       self.cylinder.container.onMouseDown();
-      mousedownParent(self.cylinder);
-      mousedownChildren(self.cylinder);
       var parent;      
       if(this.parent.instanceof === "Container") {
         parent = self.cylinder.content;
         if(parent.hidden && !parent.isEmpty()) parent.showContent();
-      }
-
-      if(!this.parent.instanceof === "Content") {
+        mousedownParent(self.cylinder);
+        mousedownChildren(self.cylinder);
+      } else if (!this.parent.instanceof === "Content") {
         this.parent.onMouseDown();
+      } else {
+        mousedownParent(self.cylinder, true);
+        mousedownChildren(self.cylinder, true);
       }
 
       if(!parent) parent = this.parent;
@@ -585,7 +586,8 @@
           !otherContainer.isEmpty() &&
           !areContentsJoined(otherContainer, parent)
           ) {
-          console.log("Transfer complete")
+          otherContainer.debug();
+          console.log("Performing transfer..")
           self.transfer(otherContainer, parent, true);
           if(!parent.isEmpty()) {
             parent.showContent();
