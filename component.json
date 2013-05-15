@@ -1,0 +1,16 @@
+{
+  "name": "VirtualLab",
+  "version": "0.0.1",
+  "main": "app/scripts/virtual-lab.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components",
+    "app",
+    "Gruntfile.js",
+    "test"
+  ],
+  "dependencies": {
+    "raphael": "latest"
+  }
+}
