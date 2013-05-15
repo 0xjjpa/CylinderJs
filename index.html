@@ -13,24 +13,24 @@
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <title>Virtuallab by jjperezaguinaga</title>
+    <title>CylinderJS by jjperezaguinaga</title>
   </head>
 
   <body>
     <header>
       <div class="inner">
-        <h1>Virtuallab</h1>
-        <h2>A RaphaelJS based virtual laboratory for chemistry</h2>
-        <a href="https://github.com/jjperezaguinaga/VirtualLab" class="button"><small>View project on</small>GitHub</a>
+        <h1>CylinderJS</h1>
+        <h2>A RaphaelJS plugin to create 3D orthographic cylinders</h2>
+        <a href="https://github.com/jjperezaguinaga/CylinderJS" class="button"><small>View project on</small>GitHub</a>
       </div>
     </header>
 
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <h3>Welcome to GitHub Pages.</h3>
+          <h3>What are 3D Orthographic Objects?</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>Unlike normal 3D objects that are rendered on a display through projection matrix operations (See <a href="http://en.wikipedia.org/wiki/3D_projection">3D Projection</a>), 3D Orthographic Objects precalculate specific camera values in order to display a 3D effect without using geometric primitives. construction </p>
 
 <pre><code>$ cd your_repo_root/repo_name
 $ git fetch origin
@@ -73,6 +73,7 @@ $ git checkout gh-pages
       </div>
     </div>
 
-  
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="scripts/cylinder.js"></script>
   </body>
 </html>
