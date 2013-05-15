@@ -107,12 +107,39 @@ c2.animate({content: {fill: "rgba(64, 191, 1, .5)"}});
   </code>
 </pre>
 
+<h4> Different speed animation <button id='animate-speed-button'>Animate </button></h4>
+<div id="animate-speed"></div>
+<pre>
+  <code>
+c1.animate({content: {ms: 10000}});
+c2.animate({content: {ms: 100}});
+  </code>
+</pre>
+
 <h4> Making it draggable (Grab through cylinder, not the content)</h4>
 <div id="draggable"></div>
 <pre>
   <code>
 c1.draggable();
 c2.draggable();
+  </code>
+</pre>
+
+<h4> Display cylinder volumen (in millimeters) </h4>
+<div id="volumen"></div>
+<pre>
+  <code>
+c1.displayVolumen();
+c2.displayVolumen();
+  </code>
+</pre>
+
+<h4> Transfer content between cylinder</h4>
+<div id="transferable"></div>
+<pre>
+  <code>
+c1.transferable();
+c2.transferable();
   </code>
 </pre>
 
