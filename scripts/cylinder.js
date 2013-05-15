@@ -10,178 +10,7 @@
  */
 
  (function () {
-  function Content() {
-    var self = this;
-    this.instanceof = "Content";
-    this.containerElement = null;
-    this.topElement = null;
-    this.baseElement = null;
-    this.hidden = false;
-
-    this.mousedown = function(start) {
-      self.topElement.mousedown(start);
-      self.baseElement.mousedown(start);
-      self.containerElement.mousedown(start);
-    }
-
-    this.onMouseDown = function() {
-      self.attr({opacity: .2});
-    }
-
-    this.onMouseUp = function() {
-      self.attr({opacity: 1}); 
-    }
-
-   this.attr = function(attrObject) {
-    self.topElement.attr(attrObject);
-    self.baseElement.attr(attrObject);
-    self.containerElement.attr(attrObject);
-  }
-
-  this.update = function() {
-    self.constructPoints();
-    self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy()});
-    self.baseElement.attr({cx: self.getBaseCx(), cy: self.getBaseCy(), rx: self.getBaseRx(), ry: self.getBaseRy()});
-    self.containerElement.attr({path: self.getPathMatrixForContainer() });
-    self.updateVolumenText();
-  }
-
-  this.constructPoints = function() {
-    var topContentWidth = self.getTopContentWidth();
-    self.startPointInX = self.getX()-topContentWidth+(topContentWidth*self.padding);
-    self.startPointInY = self.getY()+self.containerHeight-self.getPercentageContent();
-    self.topLinePathX = self.getX()+topContentWidth-(topContentWidth*self.padding);
-    self.topLinePathY = self.getY()+self.containerHeight-self.getPercentageContent();
-    self.rightLinePathX = self.getX()+self.bottomWidth-(self.bottomWidth*self.padding);
-    self.rightLinePathY = self.getY()+self.containerHeight;
-    self.bottomLinePathX = self.getX()-self.bottomWidth+(self.bottomWidth*self.padding);
-    self.bottomLinePathY = self.getY()+self.containerHeight;
-    self.leftLinePathX = self.getX()-topContentWidth+(topContentWidth*self.padding);
-    self.leftLinePathY = self.getY()+self.containerHeight-self.getPercentageContent();
-  }
-
-  this.getRealVolumen = function() {
-    return (Math.PI*(Math.pow(self.getTopWidth(),2))*(self.getPercentageContent()))/1000;
-  }
-
-  this.getMaxVolumen = function() {
-    return (Math.PI*(Math.pow(self.getTopWidth(),2))*(self.getContainerHeight()))/1000; 
-  }
-
-  this.setPercentageFromVolumen = function(volumen) {
-    return self.getOriginalPercentage((volumen*1000)/(Math.PI*(Math.pow(self.getTopWidth(),2))));
-  }
-
-  this.getTopCx = function() { return self.getX() }
-  this.getTopCy = function() { return self.getY()+self.containerHeight-self.getPercentageContent() }
-  this.getTopRx = function() { return self.getTopContentWidth()-(self.getTopContentWidth()*self.padding) }
-  this.getTopRy = function() { return self.getTopContentRy()-(self.getTopContentRy()*self.padding*2) }
-  this.getBaseCx = function() { return self.getX() }
-  this.getBaseCy = function() { return self.getY()+self.containerHeight }
-  this.getBaseRx = function() { return self.bottomWidth-(self.bottomWidth*self.padding) }
-  this.getBaseRy = function() { return self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2) }
-
-  this.getPathMatrixForContainer = function() {
-    return [
-    ["M", self.startPointInX, self.startPointInY],
-    ["A", self.getTopRx(), self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
-    ["L", self.rightLinePathX, self.rightLinePathY],
-    ["A", self.bottomWidth-(self.bottomWidth*self.padding), self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
-    ["L", self.leftLinePathX, self.leftLinePathY]
-    ];
-  }
-
-  this.getCordsArrayForText = function() {
-    var coords = self.containerElement.getBBox();
-    return [coords.x+coords.width+32, self.y];
-  }
-
-  this.drawTop = function() {
-    self.topElement = this.paper.ellipse(
-      self.getTopCx(), self.getTopCy(), self.getTopRx(), self.getTopRy() 
-      ).attr({fill: "rgba(255,255,255, 0)"});
-    self.topElement.parent = self;
-  }
-
-  this.drawBase = function() {
-    self.baseElement = this.paper.ellipse(
-      self.getBaseCx(), self.getBaseCy(), self.getBaseRx(), self.getBaseRy()
-      ).attr({fill: "rgba(255,255,255, 0)"});
-    self.baseElement.parent = self;
-  }
-
-  this.isEmpty = function() {
-    return self.getPercentageContent() < 0.001; 
-  }
-
-  this.isFull = function() {
-    return self.getMaxVolumen() === self.getRealVolumen();
-  }
-
-  this.checkIfNeedsToBeHidden = function() {
-    if(self.isEmpty()) {
-      self.hideContent();
-    }
-  }
-
-  this.drawContent = function() {
-    this.drawContainer();
-    this.drawBase();
-    this.drawTop();
-    this.checkIfNeedsToBeHidden();
-  }
-
-  this.writeVolumen = function(textContent) {
-    var textCords = self.getCordsArrayForText();
-    self.textElement = this.paper.text(
-      textCords[0], textCords[1], textContent || self.getRealVolumen().toFixed(2)+"ml"
-    );
-    self.textElement.parent = self;
-  }
-
-  this.updateVolumenText = function(textContent) {
-    var textCords = self.getCordsArrayForText();
-    this.textElement.attr({x: textCords[0], y: textCords[1], text: textContent || self.getRealVolumen().toFixed(2)+"ml" });
-  }
-
-  this.drawContainer = function() {    
-    self.containerElement = this.paper.path(
-      this.getPathMatrixForContainer()
-      ).attr({fill: "rgba(255,255,255, 0)"});
-    self.containerElement.parent = self;
-  }
-
-  this.hideContent = function() {
-    self.containerElement.hide();
-    self.baseElement.hide();
-    self.topElement.hide();
-    self.hidden = true;
-  }
-  this.showContent = function() {
-    self.containerElement.show(); 
-    self.baseElement.show();
-    self.topElement.show();
-    self.hidden = false;
-  }
-
-  this.debug = function() {
-    console.log("CONTENT");
-    console.log("X",this.getX());
-    console.log("Y",this.getY());
-    console.log("TopCx",this.getTopCx());
-  console.log("TopCy",this.getTopCy());
-  console.log("TopRx",this.getTopRx());
-  console.log("BaseCx",this.getBaseCx());
-  console.log("BaseCy",this.getBaseCy());
-  console.log("BaseRx",this.getBaseRx());
-  console.log("YRotation", this.getYRotation());
-  console.log("PercentageContent", this.getPercentageContent());
-  }
-
-  this.constructPoints();
-}
-
-function Container() {
+  function Container() {
   var self = this;
   this.instanceof = "Container";
   this.joined = 0;
@@ -304,6 +133,186 @@ function Container() {
   this.constructPoints();
 }
 
+function Content() {
+    var self = this;
+    this.instanceof = "Content";
+    this.containerElement = null;
+    this.topElement = null;
+    this.baseElement = null;
+    this.hidden = false;
+    this.textElement = null;
+    this.textContent = null;
+
+    this.mousedown = function(start) {
+      self.topElement.mousedown(start);
+      self.baseElement.mousedown(start);
+      self.containerElement.mousedown(start);
+    }
+
+    this.onMouseDown = function() {
+      self.attr({opacity: .2});
+    }
+
+    this.onMouseUp = function() {
+      self.attr({opacity: 1}); 
+    }
+
+   this.attr = function(attrObject) {
+    self.topElement.attr(attrObject);
+    self.baseElement.attr(attrObject);
+    self.containerElement.attr(attrObject);
+  }
+
+  this.update = function() {
+    self.constructPoints();
+    self.topElement.attr({cx: self.getTopCx(), cy: self.getTopCy(), rx: self.getTopRx(), ry: self.getTopRy()});
+    self.baseElement.attr({cx: self.getBaseCx(), cy: self.getBaseCy(), rx: self.getBaseRx(), ry: self.getBaseRy()});
+    self.containerElement.attr({path: self.getPathMatrixForContainer() });
+    self.updateVolumenText();
+  }
+
+  this.constructPoints = function() {
+    var topContentWidth = self.getTopContentWidth();
+    self.startPointInX = self.getX()-topContentWidth+(topContentWidth*self.padding);
+    self.startPointInY = self.getY()+self.containerHeight-self.getPercentageContent();
+    self.topLinePathX = self.getX()+topContentWidth-(topContentWidth*self.padding);
+    self.topLinePathY = self.getY()+self.containerHeight-self.getPercentageContent();
+    self.rightLinePathX = self.getX()+self.bottomWidth-(self.bottomWidth*self.padding);
+    self.rightLinePathY = self.getY()+self.containerHeight;
+    self.bottomLinePathX = self.getX()-self.bottomWidth+(self.bottomWidth*self.padding);
+    self.bottomLinePathY = self.getY()+self.containerHeight;
+    self.leftLinePathX = self.getX()-topContentWidth+(topContentWidth*self.padding);
+    self.leftLinePathY = self.getY()+self.containerHeight-self.getPercentageContent();
+  }
+
+  this.getRealVolumen = function() {
+    return (Math.PI*(Math.pow(self.getTopWidth(),2))*(self.getPercentageContent()))/1000;
+  }
+
+  this.getMaxVolumen = function() {
+    return (Math.PI*(Math.pow(self.getTopWidth(),2))*(self.getContainerHeight()))/1000; 
+  }
+
+  this.setPercentageFromVolumen = function(volumen) {
+    return self.getOriginalPercentage((volumen*1000)/(Math.PI*(Math.pow(self.getTopWidth(),2))));
+  }
+
+  this.getTopCx = function() { return self.getX() }
+  this.getTopCy = function() { return self.getY()+self.containerHeight-self.getPercentageContent() }
+  this.getTopRx = function() { return self.getTopContentWidth()-(self.getTopContentWidth()*self.padding) }
+  this.getTopRy = function() { return self.getTopContentRy()-(self.getTopContentRy()*self.padding*2) }
+  this.getBaseCx = function() { return self.getX() }
+  this.getBaseCy = function() { return self.getY()+self.containerHeight }
+  this.getBaseRx = function() { return self.bottomWidth-(self.bottomWidth*self.padding) }
+  this.getBaseRy = function() { return self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2) }
+
+  this.getPathMatrixForContainer = function() {
+    return [
+    ["M", self.startPointInX, self.startPointInY],
+    ["A", self.getTopRx(), self.getTopRy(), 0, 0, 0, self.topLinePathX, self.topLinePathY],
+    ["L", self.rightLinePathX, self.rightLinePathY],
+    ["A", self.bottomWidth-(self.bottomWidth*self.padding), self.getBaseContentRy()-(self.getBaseContentRy()*self.padding*2), 0, 0, 0, self.bottomLinePathX, self.bottomLinePathY],
+    ["L", self.leftLinePathX, self.leftLinePathY]
+    ];
+  }
+
+  this.getCordsArrayForText = function() {
+    var coords = self.containerElement.getBBox();
+    return [coords.x+coords.width+32, self.y];
+  }
+
+  this.drawTop = function() {
+    self.topElement = this.paper.ellipse(
+      self.getTopCx(), self.getTopCy(), self.getTopRx(), self.getTopRy() 
+      ).attr({fill: "rgba(255,255,255, 0)"});
+    self.topElement.parent = self;
+  }
+
+  this.drawBase = function() {
+    self.baseElement = this.paper.ellipse(
+      self.getBaseCx(), self.getBaseCy(), self.getBaseRx(), self.getBaseRy()
+      ).attr({fill: "rgba(255,255,255, 0)"});
+    self.baseElement.parent = self;
+  }
+
+  this.isEmpty = function() {
+    return self.getPercentageContent() < 0.001; 
+  }
+
+  this.isFull = function() {
+    return self.getMaxVolumen() === self.getRealVolumen();
+  }
+
+  this.checkIfNeedsToBeHidden = function() {
+    if(self.isEmpty()) {
+      self.hideContent();
+    }
+  }
+
+  this.drawContent = function() {
+    this.drawContainer();
+    this.drawBase();
+    this.drawTop();
+    this.checkIfNeedsToBeHidden();
+  }
+
+  this.writeVolumen = function(textContent) {
+    var textCords = self.getCordsArrayForText();
+    var text = textContent || self.getRealVolumen();
+    self.textContent = text.toFixed(2)+"ml";
+    self.textElement = this.paper.text(
+      textCords[0], textCords[1], self.textContent
+    );
+    self.textElement.parent = self;
+  }
+
+  this.displayTotalVolumen = function(volumen) {
+    var total = volumen + self.getRealVolumen();
+    self.updateVolumenText(total);
+  }
+
+  this.updateVolumenText = function(textContent) {
+    var textCords = self.getCordsArrayForText();
+    var text = textContent || self.getRealVolumen();
+    if(this.textElement) this.textElement.attr({x: textCords[0], y: textCords[1], text: text.toFixed(2)+"ml" });
+  }
+
+  this.drawContainer = function() {    
+    self.containerElement = this.paper.path(
+      this.getPathMatrixForContainer()
+      ).attr({fill: "rgba(255,255,255, 0)"});
+    self.containerElement.parent = self;
+  }
+
+  this.hideContent = function() {
+    self.containerElement.hide();
+    self.baseElement.hide();
+    self.topElement.hide();
+    self.hidden = true;
+  }
+  this.showContent = function() {
+    self.containerElement.show(); 
+    self.baseElement.show();
+    self.topElement.show();
+    self.hidden = false;
+  }
+
+  this.debug = function() {
+    console.log("CONTENT");
+    console.log("X",this.getX());
+    console.log("Y",this.getY());
+    console.log("TopCx",this.getTopCx());
+  console.log("TopCy",this.getTopCy());
+  console.log("TopRx",this.getTopRx());
+  console.log("BaseCx",this.getBaseCx());
+  console.log("BaseCy",this.getBaseCy());
+  console.log("BaseRx",this.getBaseRx());
+  console.log("YRotation", this.getYRotation());
+  console.log("PercentageContent", this.getPercentageContent());
+  }
+
+  this.constructPoints();
+}
   function Cylinder(paper, x, y, topWidth, bottomWidth, containerHeight, yRotation, hasContent, percentageContent, padding) {
     if(!paper) return;
 
@@ -427,8 +436,11 @@ function Container() {
     }
 
     this.updateElements = function(cylinderInstance) {
-      if(cylinderInstance.content) cylinderInstance.content.update();
+      if(cylinderInstance.content) {
+        cylinderInstance.content.update();
+      }
       cylinderInstance.container.update();
+      cylinderInstance.updateVolumenText();
     }
 
     this.drag = function(start, move, up) {
@@ -445,8 +457,7 @@ function Container() {
 
     this.transfer = function(transfuser, receiver, hasAnimation, transfuserCylinder, receiverCylinder) {
       if(!transfuser || !receiver) return;
-      transfuser.showContent();
-      receiver.showContent();
+      //if(transfuserCylinder) transfuserCylinder.content.debug();
       //receiver.setPercentageContent(newPercentageContent)
       var tC = transfuserCylinder;
       var rC = receiverCylinder;
@@ -460,20 +471,25 @@ function Container() {
             receiverCylinder = cylinderCandidate;
           }
         }
-        if(transfuserCylinder.container.joined && receiverCylinder.container.joined) return;
-        transfuserCylinder.container.onMouseDown();
+        if(areCylindersJoined(transfuserCylinder, receiverCylinder)) return;
+      }
+
+      transfuserCylinder.container.onMouseDown();
         receiverCylinder.container.onMouseDown();
         mousedownChildren(receiverCylinder);
         mousedownParent(receiverCylinder);
         mousedownChildren(transfuserCylinder);
         mousedownParent(transfuserCylinder);
-      }
 
       if(transfuserCylinder.parent && !transfuserCylinder.parent.content.isEmpty()) {
+        transfuserCylinder.parent.transfuser = true;
         self.transfer(transfuserCylinder.parent.content, receiver, hasAnimation, transfuserCylinder.parent, receiverCylinder);
       } else if (receiverCylinder.child && !receiverCylinder.child.content.isFull()) {
+        transfuserCylinder.transfuser = true;
         self.transfer(transfuser, receiverCylinder.child.content, hasAnimation, transfuserCylinder, receiverCylinder.child);
       } else {
+        if(!transfuser.isEmpty() || transfuserCylinder) transfuser.showContent();
+      if(!receiver.isEmpty() || transfuserCylinder) receiver.showContent();
         var toTransfer = +transfuser.getRealVolumen();
         var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
 
@@ -512,9 +528,11 @@ function Container() {
     var areCylindersJoined = function(cylinder1, cylinder2) {
       if(cylinder1 === cylinder2) return true;
       if(!cylinder1 || !cylinder2) return false;
-      var areThey = (cylinder1.container.joined === cylinder2.container.transferId &&
-              cylinder2.container.joined === cylinder1.container.transferId);
-      return areThey;
+
+      var diff = cylinder1.container.joined > cylinder2.container.transferId ?
+      cylinder1.container.joined - cylinder2.container.transferId :
+      cylinder2.container.transferId - cylinder1.container.joined;
+      return diff < 50;
     }
 
     var areContentsJoined = function(content1, content2) {
@@ -526,7 +544,7 @@ function Container() {
 
     var afterTransferCallback = function() {
       if(!this) return;
-      this.content.updateVolumenText();
+      this.updateVolumenText();
       if(this.container.isDraggable) {
         this.draggable();
       }
@@ -535,6 +553,7 @@ function Container() {
       this.content.onMouseUp();
       mouseUpParent(this);
       mouseUpChildren(this);
+      var y = this.content.getY();
 
       if(this.transfuser) {
         //Case Cylinder A ---> Cylinder B and B is not full yet.
@@ -543,32 +562,32 @@ function Container() {
            this.child &&
            !areCylindersJoined(this, this.transfuserData.receiverCylinder.parent)
            ) {
+          this.transfuser = false;
           self.transfer(this.child.content, this.transfuserData.receiver, this.transfuserData.hasAnimation, this.child, this.transfuserData.receiverCylinder);
         } else if(this.transfuserData.exceededVolumen > 0.00001 && 
           this.transfuserData.receiverNewVolumen > this.transfuserData.receiverMaxVolumen &&
            this.transfuserData.receiverCylinder.parent &&
            !areCylindersJoined(this, this.transfuserData.receiverCylinder.parent)) {
           this.transfuserData.receiverCylinder.parent.content.showContent();
+          this.transfuser = false;
           self.transfer(this.content, this.transfuserData.receiverCylinder.parent.content, this.transfuserData.hasAnimation, this, this.transfuserData.receiverCylinder.parent);
         } 
-        delete this.transfuser;
-        delete this.transfuserData;
       }
     }
 
-    var mousedownParent = function(cylinderInstance) {
+    var mousedownParent = function(cylinderInstance, fromContent) {
       if(cylinderInstance.parent) {
-        cylinderInstance.parent.content.onMouseDown();
+        //cylinderInstance.parent.content.onMouseDown();
         cylinderInstance.parent.container.onMouseDown();
-        mousedownParent(cylinderInstance.parent);
+        mousedownParent(cylinderInstance.parent, fromContent);
       }
     }
 
-    var mousedownChildren = function(cylinderInstance) {
+    var mousedownChildren = function(cylinderInstance, fromContent) {
       if(cylinderInstance.child) {
-        cylinderInstance.child.content.onMouseDown();
+        //cylinderInstance.child.content.onMouseDown();
         cylinderInstance.child.container.onMouseDown();
-        mousedownChildren(cylinderInstance.child);
+        mousedownChildren(cylinderInstance.child, fromContent);
       }
     }
 
@@ -708,7 +727,6 @@ function Container() {
       self.cylinder.container.drawContainer();
       self.cylinder.container.drawBase();  
       self.cylinder.content.drawContent();
-      self.cylinder.content.writeVolumen();
       self.cylinder.container.drawTop();
     } else {
       self.cylinder.container = new Container();
@@ -847,16 +865,17 @@ function Container() {
 
     var transferStart = function() {      
       self.cylinder.container.onMouseDown();
-      mousedownParent(self.cylinder);
-      mousedownChildren(self.cylinder);
       var parent;      
       if(this.parent.instanceof === "Container") {
         parent = self.cylinder.content;
         if(parent.hidden && !parent.isEmpty()) parent.showContent();
-      }
-
-      if(!this.parent.instanceof === "Content") {
+        mousedownParent(self.cylinder);
+        mousedownChildren(self.cylinder);
+      } else if (!this.parent.instanceof === "Content") {
         this.parent.onMouseDown();
+      } else {
+        mousedownParent(self.cylinder, true);
+        mousedownChildren(self.cylinder, true);
       }
 
       if(!parent) parent = this.parent;
@@ -872,14 +891,18 @@ function Container() {
         var otherContainer = Cylinder.prototype.selectedTarget;
         Cylinder.prototype.selectedTarget = parent;
         
-
+        if(otherContainer) {
+          //console.log(otherContainer.isTransferable);
+          //console.log(parent.isTransferable);
+          //console.log(!otherContainer.isEmpty());
+        }
         if(otherContainer && 
           otherContainer.isTransferable &&
           parent.isTransferable && 
-          !otherContainer.isEmpty() &&
           !areContentsJoined(otherContainer, parent)
           ) {
-          console.log("Transfer complete")
+          otherContainer.debug();
+          console.log("Performing transfer..")
           self.transfer(otherContainer, parent, true);
           if(!parent.isEmpty()) {
             parent.showContent();
@@ -893,16 +916,11 @@ function Container() {
     
     
     self.cylinder.transferable = function() {
-      if(!Cylinder.prototype.cylinders) {
-        Cylinder.prototype.cylinders = [];
-        Cylinder.prototype.ids = 1;
-      }
-
       if(this.content && !this.content.transferId) {
-        this.content.transferId = Cylinder.prototype.ids++;
+        this.content.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.content.isTransferable = true;
       } else if (!this.container.transferId) {
-        this.container.transferId = Cylinder.prototype.ids++;
+        this.container.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.container.isTransferable = true;
       }
 
@@ -926,25 +944,20 @@ function Container() {
       self.transfer(parent.content, child.content, false, parent, child);  
     }
 
-    self.cylinder.joinBottom = function(cylinderInstance) {
-      if(!Cylinder.prototype.cylinders) {
-        Cylinder.prototype.cylinders = [];
-        Cylinder.prototype.ids = 1;
-      }
-      
+    self.cylinder.joinBottom = function(cylinderInstance) {      
       if(this.content && !this.content.transferId) {
-        this.content.transferId = Cylinder.prototype.ids++;
+        this.content.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.content.isTransferable = true;
       } else if (!this.container.transferId) {
-        this.container.transferId = Cylinder.prototype.ids++;
+        this.container.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.container.isTransferable = true;
       }
 
       if(cylinderInstance.content && !cylinderInstance.content.transferId) {
-        cylinderInstance.content.transferId = Cylinder.prototype.ids++;
+        cylinderInstance.content.transferId = Cylinder.prototype.ids + Cylinder.prototype.cylinderParts++;
         cylinderInstance.content.isTransferable = true;
       } else if (!cylinderInstance.container.transferId) {
-        cylinderInstance.container.transferId = Cylinder.prototype.ids++;
+        cylinderInstance.container.transferId = Cylinder.prototype.ids + Cylinder.prototype.cylinderParts++;
         cylinderInstance.container.isTransferable = true;
       }
 
@@ -957,7 +970,9 @@ function Container() {
 
       //this.content.baseElement.remove();
       //cylinderInstance.content.topElement.remove();
-
+      //console.log("INstance", cylinderInstance);
+      //this.content.displayTotalVolumen(cylinderInstance.content.getRealVolumen());
+      //cylinderInstance.content.textElement.remove();
       this.container.baseElement.remove();
 
       cylinderInstance.container.joined = this.content ? this.content.transferId : this.container.transferId;      
@@ -996,7 +1011,41 @@ function Container() {
     }
   */
     
-    
+    if(!Cylinder.prototype.cylinders) {
+        Cylinder.prototype.cylinders = [];
+        Cylinder.prototype.ids = 1;
+        Cylinder.prototype.cylinderParts = 0;
+      }
+    Cylinder.prototype.ids += 50;
+    Cylinder.prototype.cylinderParts = 0;
+
+    var getUpMostParent = function(cylinder) {
+      return cylinder.parent ? getUpMostParent(cylinder.parent) : cylinder;
+    }
+
+    self.cylinder.getTotalVolumen = function(parent) {
+      var upMostParent = parent || getUpMostParent(this);
+      return (function sumVolumen(c){
+        return c.child ? sumVolumen(c.child) + c.content.getRealVolumen() : c.content.getRealVolumen();
+      })(this);
+    }
+
+    self.cylinder.displayVolumen = function() {
+      var upMostParent = getUpMostParent(this);
+      upMostParent.content.writeVolumen(this.getTotalVolumen(upMostParent));
+    }
+
+    self.cylinder.updateVolumenText = function() {
+      var upMostParent = getUpMostParent(this);
+      upMostParent.content.updateVolumenText(this.getTotalVolumen(upMostParent));
+    }
+
+    /*
+    var displayText = function(cylinder) {
+      if(cylinder.child)
+    }*/
+
+    //getTotalVolumen(self.cylinder);
     return self.cylinder;
   }
 
