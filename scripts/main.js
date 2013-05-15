@@ -9,6 +9,7 @@ var animateColor = Raphael('animate-color', '690', '160');
 var animateSpeed = Raphael('animate-speed', '690', '160');
 var volumen = Raphael('volumen', '690', '160');
 var transferable = Raphael('transferable', '690', '160');
+var transferableMultiple = Raphael('transferable-multiple', '690', '160');
 
 var x = 0;
 var y = 0;
@@ -107,6 +108,31 @@ rsr.text(x+120, y+100, "and other ellipse");
     c1.transferable();
     c2.transferable();
 })(x,y,transferable);
+
+(function(x,y,rsr){
+    x+=80
+    y+=30
+    var c1 = rsr.cylinder(x-10, y, 10, 40, 80, 90, true, 20);
+    var c2 = rsr.cylinder(x+120, y, 30, 40, 80, 40, true, 70);
+    var c3 = rsr.cylinder(x+240, y, 10, 10, 90, 30, true, 10);
+    var c4 = rsr.cylinder(x+340, y+5, 30, 20, 80, 60, true, 90);
+    var c5 = rsr.cylinder(x+460, y, 20, 20, 80, 40, true, 30);
+    c1.attr({content: {fill: "rgba(15, 55, 86, .5)"}});
+    c2.attr({content: {fill: "rgba(229, 130, 0, .5)"}});
+    c3.attr({content: {fill: "rgba(217, 200, 154, .5)"}});
+    c4.attr({content: {fill: "rgba(217, 48, 48, .5)"}});
+    c5.attr({content: {fill: "rgba(53, 59, 22, .5)"}});
+    c1.displayVolumen();
+    c2.displayVolumen();
+    c3.displayVolumen();
+    c4.displayVolumen();
+    c5.displayVolumen();
+    c1.transferable();
+    c2.transferable();
+    c3.transferable();
+    c4.transferable();
+    c5.transferable();
+})(x,y,transferableMultiple);
 
 (function(x,y,rsr){
     x+=200
