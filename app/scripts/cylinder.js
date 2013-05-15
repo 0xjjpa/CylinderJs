@@ -133,8 +133,11 @@
     }
 
     this.updateElements = function(cylinderInstance) {
-      if(cylinderInstance.content) cylinderInstance.content.update();
+      if(cylinderInstance.content) {
+        cylinderInstance.content.update();
+      }
       cylinderInstance.container.update();
+      cylinderInstance.updateVolumenText();
     }
 
     this.drag = function(start, move, up) {
@@ -238,7 +241,7 @@
 
     var afterTransferCallback = function() {
       if(!this) return;
-      this.content.updateVolumenText();
+      this.updateVolumenText();
       if(this.container.isDraggable) {
         this.draggable();
       }
@@ -421,7 +424,6 @@
       self.cylinder.container.drawContainer();
       self.cylinder.container.drawBase();  
       self.cylinder.content.drawContent();
-      self.cylinder.content.writeVolumen();
       self.cylinder.container.drawTop();
     } else {
       self.cylinder.container = new Container();
@@ -663,7 +665,9 @@
 
       //this.content.baseElement.remove();
       //cylinderInstance.content.topElement.remove();
-
+      //console.log("INstance", cylinderInstance);
+      //this.content.displayTotalVolumen(cylinderInstance.content.getRealVolumen());
+      //cylinderInstance.content.textElement.remove();
       this.container.baseElement.remove();
 
       cylinderInstance.container.joined = this.content ? this.content.transferId : this.container.transferId;      
@@ -709,6 +713,34 @@
       }
     Cylinder.prototype.ids += 50;
     Cylinder.prototype.cylinderParts = 0;
+
+    var getUpMostParent = function(cylinder) {
+      return cylinder.parent ? getUpMostParent(cylinder.parent) : cylinder;
+    }
+
+    self.cylinder.getTotalVolumen = function(parent) {
+      var upMostParent = parent || getUpMostParent(this);
+      return (function sumVolumen(c){
+        return c.child ? sumVolumen(c.child) + c.content.getRealVolumen() : c.content.getRealVolumen();
+      })(this);
+    }
+
+    self.cylinder.displayVolumen = function() {
+      var upMostParent = getUpMostParent(this);
+      upMostParent.content.writeVolumen(this.getTotalVolumen(upMostParent));
+    }
+
+    self.cylinder.updateVolumenText = function() {
+      var upMostParent = getUpMostParent(this);
+      upMostParent.content.updateVolumenText(this.getTotalVolumen(upMostParent));
+    }
+
+    /*
+    var displayText = function(cylinder) {
+      if(cylinder.child)
+    }*/
+
+    //getTotalVolumen(self.cylinder);
     return self.cylinder;
   }
 

@@ -9,6 +9,7 @@ var tubo = rsr.cylinder(x, y, 10, 10, 80, 30, true, 40);
 tubo.transferable();
 tubo.draggable();
 tubo.attr({content: {fill: "rgba(40, 100, 159, 1)"}});
+tubo.displayVolumen();
 
 //Matraz
 var matrazTop = rsr.cylinder(x+100, y, 10, 10, 30, 30, true, 40);
@@ -22,6 +23,7 @@ matrazTop.attr({	content: {fill: "rgba(20, 160, 59, 1)"}});
 matrazBottom.transferable();
 matrazBottom.draggable();
 matrazBottom.attr({	content: {fill: "rgba(20, 160, 59, 1)"}});
+matrazTop.displayVolumen();
 
 
 var tuboBig = rsr.cylinder(x+300, y, 40, 40, 80, 40, true, 40);
@@ -29,6 +31,7 @@ var tuboBig = rsr.cylinder(x+300, y, 40, 40, 80, 40, true, 40);
 tuboBig.transferable();
 tuboBig.draggable();
 tuboBig.attr({	content: {fill: "rgba(90, 20, 230, 1)"}});
+tuboBig.displayVolumen();
 
 
 var pipetaTop = rsr.cylinder(x, y+120, 10, 10, 80, 20, true, 0);
@@ -41,6 +44,7 @@ pipetaMain.joinBottom(pipetaBottom);
 pipetaTop.transferable();
 pipetaTop.draggable();
 pipetaTop.attr({	content: {fill: "rgba(200, 100, 9, 1)"}});
+pipetaTop.displayVolumen();
 
 pipetaMain.transferable();
 pipetaMain.draggable();
@@ -50,10 +54,12 @@ pipetaBottom.transferable();
 pipetaBottom.draggable();
 pipetaBottom.attr({	content: {fill: "rgba(200, 100, 9, 1)"}});
 
+
 var largeTube = rsr.cylinder(x+120, y+120, 10, 10, 170, 60, true, 90, .30);
 largeTube.transferable();
 largeTube.draggable();
 largeTube.attr({	content: {fill: "rgba(99, 0, 99, 1)"}});
+largeTube.displayVolumen();
 
 
 //Matraz
@@ -61,6 +67,7 @@ var matraz2UltraBase = rsr.cylinder(x+240, y+140, 5, 30, 30, 60, true, 40);
 var matraz2Base = rsr.cylinder(x+240, y+140, 10, 30, 10, 60, true, 40);
 var matraz2Bottom = rsr.cylinder(x+240, y+200, 10, 40, 60, 90, true, 40);
 var matraz2Top = rsr.cylinder(x+240, y+140, 10, 30, 30, 60, true, 40);
+matraz2Top.displayVolumen();
 
 
 
