@@ -133,8 +133,11 @@
     }
 
     this.updateElements = function(cylinderInstance) {
-      if(cylinderInstance.content) cylinderInstance.content.update();
+      if(cylinderInstance.content) {
+        cylinderInstance.content.update();
+      }
       cylinderInstance.container.update();
+      cylinderInstance.updateVolumenText();
     }
 
     this.drag = function(start, move, up) {
@@ -151,9 +154,7 @@
 
     this.transfer = function(transfuser, receiver, hasAnimation, transfuserCylinder, receiverCylinder) {
       if(!transfuser || !receiver) return;
-      console.log(arguments);
-      if(!transfuser.isEmpty() || transfuserCylinder) transfuser.showContent();
-      if(!receiver.isEmpty() || transfuserCylinder) receiver.showContent();
+      //if(transfuserCylinder) transfuserCylinder.content.debug();
       //receiver.setPercentageContent(newPercentageContent)
       var tC = transfuserCylinder;
       var rC = receiverCylinder;
@@ -167,20 +168,25 @@
             receiverCylinder = cylinderCandidate;
           }
         }
-        if(transfuserCylinder.container.joined && receiverCylinder.container.joined) return;
-        transfuserCylinder.container.onMouseDown();
-        receiverCylinder.container.onMouseDown();
-        mousedownChildren(receiverCylinder, true);
-        mousedownParent(receiverCylinder,true);
-        mousedownChildren(transfuserCylinder, true);
-        mousedownParent(transfuserCylinder,true);
+        if(areCylindersJoined(transfuserCylinder, receiverCylinder)) return;
       }
 
+      transfuserCylinder.container.onMouseDown();
+        receiverCylinder.container.onMouseDown();
+        mousedownChildren(receiverCylinder);
+        mousedownParent(receiverCylinder);
+        mousedownChildren(transfuserCylinder);
+        mousedownParent(transfuserCylinder);
+
       if(transfuserCylinder.parent && !transfuserCylinder.parent.content.isEmpty()) {
+        transfuserCylinder.parent.transfuser = true;
         self.transfer(transfuserCylinder.parent.content, receiver, hasAnimation, transfuserCylinder.parent, receiverCylinder);
       } else if (receiverCylinder.child && !receiverCylinder.child.content.isFull()) {
+        transfuserCylinder.transfuser = true;
         self.transfer(transfuser, receiverCylinder.child.content, hasAnimation, transfuserCylinder, receiverCylinder.child);
       } else {
+        if(!transfuser.isEmpty() || transfuserCylinder) transfuser.showContent();
+      if(!receiver.isEmpty() || transfuserCylinder) receiver.showContent();
         var toTransfer = +transfuser.getRealVolumen();
         var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
 
@@ -219,9 +225,11 @@
     var areCylindersJoined = function(cylinder1, cylinder2) {
       if(cylinder1 === cylinder2) return true;
       if(!cylinder1 || !cylinder2) return false;
-      var areThey = (cylinder1.container.joined === cylinder2.container.transferId &&
-              cylinder2.container.joined === cylinder1.container.transferId);
-      return areThey;
+
+      var diff = cylinder1.container.joined > cylinder2.container.transferId ?
+      cylinder1.container.joined - cylinder2.container.transferId :
+      cylinder2.container.transferId - cylinder1.container.joined;
+      return diff < 50;
     }
 
     var areContentsJoined = function(content1, content2) {
@@ -233,7 +241,7 @@
 
     var afterTransferCallback = function() {
       if(!this) return;
-      this.content.updateVolumenText();
+      this.updateVolumenText();
       if(this.container.isDraggable) {
         this.draggable();
       }
@@ -242,6 +250,7 @@
       this.content.onMouseUp();
       mouseUpParent(this);
       mouseUpChildren(this);
+      var y = this.content.getY();
 
       if(this.transfuser) {
         //Case Cylinder A ---> Cylinder B and B is not full yet.
@@ -250,22 +259,22 @@
            this.child &&
            !areCylindersJoined(this, this.transfuserData.receiverCylinder.parent)
            ) {
+          this.transfuser = false;
           self.transfer(this.child.content, this.transfuserData.receiver, this.transfuserData.hasAnimation, this.child, this.transfuserData.receiverCylinder);
         } else if(this.transfuserData.exceededVolumen > 0.00001 && 
           this.transfuserData.receiverNewVolumen > this.transfuserData.receiverMaxVolumen &&
            this.transfuserData.receiverCylinder.parent &&
            !areCylindersJoined(this, this.transfuserData.receiverCylinder.parent)) {
           this.transfuserData.receiverCylinder.parent.content.showContent();
+          this.transfuser = false;
           self.transfer(this.content, this.transfuserData.receiverCylinder.parent.content, this.transfuserData.hasAnimation, this, this.transfuserData.receiverCylinder.parent);
         } 
-        delete this.transfuser;
-        delete this.transfuserData;
       }
     }
 
     var mousedownParent = function(cylinderInstance, fromContent) {
       if(cylinderInstance.parent) {
-        if(!fromContent) cylinderInstance.parent.content.onMouseDown();
+        //cylinderInstance.parent.content.onMouseDown();
         cylinderInstance.parent.container.onMouseDown();
         mousedownParent(cylinderInstance.parent, fromContent);
       }
@@ -273,7 +282,7 @@
 
     var mousedownChildren = function(cylinderInstance, fromContent) {
       if(cylinderInstance.child) {
-        if(!fromContent) cylinderInstance.child.content.onMouseDown();
+        //cylinderInstance.child.content.onMouseDown();
         cylinderInstance.child.container.onMouseDown();
         mousedownChildren(cylinderInstance.child, fromContent);
       }
@@ -415,7 +424,6 @@
       self.cylinder.container.drawContainer();
       self.cylinder.container.drawBase();  
       self.cylinder.content.drawContent();
-      self.cylinder.content.writeVolumen();
       self.cylinder.container.drawTop();
     } else {
       self.cylinder.container = new Container();
@@ -605,16 +613,11 @@
     
     
     self.cylinder.transferable = function() {
-      if(!Cylinder.prototype.cylinders) {
-        Cylinder.prototype.cylinders = [];
-        Cylinder.prototype.ids = 1;
-      }
-
       if(this.content && !this.content.transferId) {
-        this.content.transferId = Cylinder.prototype.ids++;
+        this.content.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.content.isTransferable = true;
       } else if (!this.container.transferId) {
-        this.container.transferId = Cylinder.prototype.ids++;
+        this.container.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.container.isTransferable = true;
       }
 
@@ -638,25 +641,20 @@
       self.transfer(parent.content, child.content, false, parent, child);  
     }
 
-    self.cylinder.joinBottom = function(cylinderInstance) {
-      if(!Cylinder.prototype.cylinders) {
-        Cylinder.prototype.cylinders = [];
-        Cylinder.prototype.ids = 1;
-      }
-      
+    self.cylinder.joinBottom = function(cylinderInstance) {      
       if(this.content && !this.content.transferId) {
-        this.content.transferId = Cylinder.prototype.ids++;
+        this.content.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.content.isTransferable = true;
       } else if (!this.container.transferId) {
-        this.container.transferId = Cylinder.prototype.ids++;
+        this.container.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.container.isTransferable = true;
       }
 
       if(cylinderInstance.content && !cylinderInstance.content.transferId) {
-        cylinderInstance.content.transferId = Cylinder.prototype.ids++;
+        cylinderInstance.content.transferId = Cylinder.prototype.ids + Cylinder.prototype.cylinderParts++;
         cylinderInstance.content.isTransferable = true;
       } else if (!cylinderInstance.container.transferId) {
-        cylinderInstance.container.transferId = Cylinder.prototype.ids++;
+        cylinderInstance.container.transferId = Cylinder.prototype.ids + Cylinder.prototype.cylinderParts++;
         cylinderInstance.container.isTransferable = true;
       }
 
@@ -669,7 +667,9 @@
 
       //this.content.baseElement.remove();
       //cylinderInstance.content.topElement.remove();
-
+      //console.log("INstance", cylinderInstance);
+      //this.content.displayTotalVolumen(cylinderInstance.content.getRealVolumen());
+      //cylinderInstance.content.textElement.remove();
       this.container.baseElement.remove();
 
       cylinderInstance.container.joined = this.content ? this.content.transferId : this.container.transferId;      
@@ -708,7 +708,41 @@
     }
   */
     
-    
+    if(!Cylinder.prototype.cylinders) {
+        Cylinder.prototype.cylinders = [];
+        Cylinder.prototype.ids = 1;
+        Cylinder.prototype.cylinderParts = 0;
+      }
+    Cylinder.prototype.ids += 50;
+    Cylinder.prototype.cylinderParts = 0;
+
+    var getUpMostParent = function(cylinder) {
+      return cylinder.parent ? getUpMostParent(cylinder.parent) : cylinder;
+    }
+
+    self.cylinder.getTotalVolumen = function(parent) {
+      var upMostParent = parent || getUpMostParent(this);
+      return (function sumVolumen(c){
+        return c.child ? sumVolumen(c.child) + c.content.getRealVolumen() : c.content.getRealVolumen();
+      })(this);
+    }
+
+    self.cylinder.displayVolumen = function() {
+      var upMostParent = getUpMostParent(this);
+      upMostParent.content.writeVolumen(this.getTotalVolumen(upMostParent));
+    }
+
+    self.cylinder.updateVolumenText = function() {
+      var upMostParent = getUpMostParent(this);
+      upMostParent.content.updateVolumenText(this.getTotalVolumen(upMostParent));
+    }
+
+    /*
+    var displayText = function(cylinder) {
+      if(cylinder.child)
+    }*/
+
+    //getTotalVolumen(self.cylinder);
     return self.cylinder;
   }
 

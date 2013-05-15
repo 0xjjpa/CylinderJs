@@ -5,6 +5,8 @@ function Content() {
     this.topElement = null;
     this.baseElement = null;
     this.hidden = false;
+    this.textElement = null;
+    this.textContent = null;
 
     this.mousedown = function(start) {
       self.topElement.mousedown(start);
@@ -121,15 +123,23 @@ function Content() {
 
   this.writeVolumen = function(textContent) {
     var textCords = self.getCordsArrayForText();
+    var text = textContent || self.getRealVolumen();
+    self.textContent = text.toFixed(2)+"ml";
     self.textElement = this.paper.text(
-      textCords[0], textCords[1], textContent || self.getRealVolumen().toFixed(2)+"ml"
+      textCords[0], textCords[1], self.textContent
     );
     self.textElement.parent = self;
   }
 
+  this.displayTotalVolumen = function(volumen) {
+    var total = volumen + self.getRealVolumen();
+    self.updateVolumenText(total);
+  }
+
   this.updateVolumenText = function(textContent) {
     var textCords = self.getCordsArrayForText();
-    this.textElement.attr({x: textCords[0], y: textCords[1], text: textContent || self.getRealVolumen().toFixed(2)+"ml" });
+    var text = textContent || self.getRealVolumen();
+    if(this.textElement) this.textElement.attr({x: textCords[0], y: textCords[1], text: text.toFixed(2)+"ml" });
   }
 
   this.drawContainer = function() {    
