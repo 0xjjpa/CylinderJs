@@ -765,9 +765,16 @@ function Content() {
           animationObjectForBase['fill'] = newColor;
         }
 
-        var animateObject = Raphael.animation(animationObjectForContainer, settingsForContent['ms'] || 1000, '<', afterTransferCallback.bind(cylinderToCallback));
+        var animateObject;
+        if(cylinderToCallback) {
+          animateObject = Raphael.animation(animationObjectForContainer, settingsForContent['ms'] || 1000, '<', afterTransferCallback.bind(cylinderToCallback));  
+        } else {
+          animateObject = Raphael.animation(animationObjectForContainer, settingsForContent['ms'] || 1000, '<');  
+        }
+        
         var elementObject = content.containerElement.animate(animateObject);
         content.topElement.animateWith(elementObject, animateObject, animationObjectForTop, settingsForContent['ms'] || 1000, '<');
+        content.baseElement.animateWith(elementObject, animateObject, animationObjectForBase, settingsForContent['ms'] || 1000, '<');
       }
     }
 

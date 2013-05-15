@@ -63,11 +63,58 @@ var cylinder = paper.cylinder(
 </pre>
 
 <h4> Creating a basic cylinder </h4>
+<div id="basic"></div>
 <pre>
   <code>
-    </code>
-  </pre>
+var c1 = rsr.cylinder(x, y, 10, 40, 80, 90, true, 60);
+var c2 = rsr.cylinder(x+200, y, 40, 40, 80, 40, true, 30);
+  </code>
+</pre>
 
+<h4> Add color (Only to content) </h4>
+<div id="color"></div>
+<pre>
+  <code>
+c1.attr({content: {fill: "rgba(15, 55, 86, .5)"}});
+c2.attr({content: {fill: "rgba(229, 130, 0, .5)"}});
+  </code>
+</pre>
+
+<h4> Modifying percentage (Only to content) </h4>
+<div id="percentage"></div>
+<pre>
+  <code>
+c1.attr({content: {percentage: 10}});
+c2.attr({content: {percentage: 80}});
+  </code>
+</pre>
+
+<h4> Animate percentage change (Only to content) <button id='animate-percentage-button'>Animate </button></h4>
+<div id="animate-percentage"></div>
+<pre>
+  <code>
+c1.animate({content: {percentage: 10}});
+c2.animate({content: {percentage: 80}});
+  </code>
+</pre>
+
+<h4> Animate color change (Only to content) <button id='animate-color-button'>Animate </button></h4>
+<div id="animate-color"></div>
+<pre>
+  <code>
+c1.animate({content: {fill: "rgba(242, 203, 185, .5)"}});
+c2.animate({content: {fill: "rgba(64, 191, 1, .5)"}});
+  </code>
+</pre>
+
+<h4> Making it draggable (Grab through cylinder, not the content)</h4>
+<div id="draggable"></div>
+<pre>
+  <code>
+c1.draggable();
+c2.draggable();
+  </code>
+</pre>
 
 <h3>Objectives, Roadpmap and Support</h3>
 
