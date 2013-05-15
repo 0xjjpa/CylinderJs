@@ -57,11 +57,17 @@ largeTube.attr({	content: {fill: "rgba(99, 0, 99, 1)"}});
 
 
 //Matraz
+var matraz2UltraBase = rsr.cylinder(x+240, y+140, 5, 30, 30, 60, true, 40);
+var matraz2Base = rsr.cylinder(x+240, y+140, 10, 30, 10, 60, true, 40);
 var matraz2Bottom = rsr.cylinder(x+240, y+200, 10, 40, 60, 90, true, 40);
 var matraz2Top = rsr.cylinder(x+240, y+140, 10, 30, 30, 60, true, 40);
 
 
+
+
 matraz2Top.joinBottom(matraz2Bottom);
+matraz2Bottom.joinBottom(matraz2Base);
+matraz2Base.joinBottom(matraz2UltraBase);
 
 matraz2Top.transferable();
 matraz2Top.draggable();
@@ -69,6 +75,12 @@ matraz2Top.attr({	content: {fill: "rgba(0, 0, 59, 1)"}});
 matraz2Bottom.transferable();
 matraz2Bottom.draggable();
 matraz2Bottom.attr({	content: {fill: "rgba(0, 0, 59, 1)"}});
+matraz2Base.transferable();
+matraz2Base.draggable();
+matraz2Base.attr({	content: {fill: "rgba(0, 0, 59, 1)"}});
+matraz2UltraBase.transferable();
+matraz2UltraBase.draggable();
+matraz2UltraBase.attr({	content: {fill: "rgba(0, 0, 59, 1)"}});
 
 //var containerHeight = 60;
 //var topWidth = 55;

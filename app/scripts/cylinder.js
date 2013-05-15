@@ -151,9 +151,7 @@
 
     this.transfer = function(transfuser, receiver, hasAnimation, transfuserCylinder, receiverCylinder) {
       if(!transfuser || !receiver) return;
-      if(transfuserCylinder) transfuserCylinder.content.debug();
-      if(!transfuser.isEmpty() || transfuserCylinder) transfuser.showContent();
-      if(!receiver.isEmpty() || transfuserCylinder) receiver.showContent();
+      //if(transfuserCylinder) transfuserCylinder.content.debug();
       //receiver.setPercentageContent(newPercentageContent)
       var tC = transfuserCylinder;
       var rC = receiverCylinder;
@@ -167,14 +165,15 @@
             receiverCylinder = cylinderCandidate;
           }
         }
-        if(transfuserCylinder.container.joined && receiverCylinder.container.joined) return;
-        transfuserCylinder.container.onMouseDown();
+        if(areCylindersJoined(transfuserCylinder, receiverCylinder)) return;
+      }
+
+      transfuserCylinder.container.onMouseDown();
         receiverCylinder.container.onMouseDown();
         mousedownChildren(receiverCylinder);
         mousedownParent(receiverCylinder);
         mousedownChildren(transfuserCylinder);
         mousedownParent(transfuserCylinder);
-      }
 
       if(transfuserCylinder.parent && !transfuserCylinder.parent.content.isEmpty()) {
         transfuserCylinder.parent.transfuser = true;
@@ -183,6 +182,8 @@
         transfuserCylinder.transfuser = true;
         self.transfer(transfuser, receiverCylinder.child.content, hasAnimation, transfuserCylinder, receiverCylinder.child);
       } else {
+        if(!transfuser.isEmpty() || transfuserCylinder) transfuser.showContent();
+      if(!receiver.isEmpty() || transfuserCylinder) receiver.showContent();
         var toTransfer = +transfuser.getRealVolumen();
         var receiverNewVolumen = +receiver.getRealVolumen() + toTransfer;
 
@@ -221,9 +222,11 @@
     var areCylindersJoined = function(cylinder1, cylinder2) {
       if(cylinder1 === cylinder2) return true;
       if(!cylinder1 || !cylinder2) return false;
-      var areThey = (cylinder1.container.joined === cylinder2.container.transferId &&
-              cylinder2.container.joined === cylinder1.container.transferId);
-      return areThey;
+
+      var diff = cylinder1.container.joined > cylinder2.container.transferId ?
+      cylinder1.container.joined - cylinder2.container.transferId :
+      cylinder2.container.transferId - cylinder1.container.joined;
+      return diff < 50;
     }
 
     var areContentsJoined = function(content1, content2) {
@@ -606,16 +609,11 @@
     
     
     self.cylinder.transferable = function() {
-      if(!Cylinder.prototype.cylinders) {
-        Cylinder.prototype.cylinders = [];
-        Cylinder.prototype.ids = 1;
-      }
-
       if(this.content && !this.content.transferId) {
-        this.content.transferId = Cylinder.prototype.ids++;
+        this.content.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.content.isTransferable = true;
       } else if (!this.container.transferId) {
-        this.container.transferId = Cylinder.prototype.ids++;
+        this.container.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.container.isTransferable = true;
       }
 
@@ -639,25 +637,20 @@
       self.transfer(parent.content, child.content, false, parent, child);  
     }
 
-    self.cylinder.joinBottom = function(cylinderInstance) {
-      if(!Cylinder.prototype.cylinders) {
-        Cylinder.prototype.cylinders = [];
-        Cylinder.prototype.ids = 1;
-      }
-      
+    self.cylinder.joinBottom = function(cylinderInstance) {      
       if(this.content && !this.content.transferId) {
-        this.content.transferId = Cylinder.prototype.ids++;
+        this.content.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.content.isTransferable = true;
       } else if (!this.container.transferId) {
-        this.container.transferId = Cylinder.prototype.ids++;
+        this.container.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.container.isTransferable = true;
       }
 
       if(cylinderInstance.content && !cylinderInstance.content.transferId) {
-        cylinderInstance.content.transferId = Cylinder.prototype.ids++;
+        cylinderInstance.content.transferId = Cylinder.prototype.ids + Cylinder.prototype.cylinderParts++;
         cylinderInstance.content.isTransferable = true;
       } else if (!cylinderInstance.container.transferId) {
-        cylinderInstance.container.transferId = Cylinder.prototype.ids++;
+        cylinderInstance.container.transferId = Cylinder.prototype.ids + Cylinder.prototype.cylinderParts++;
         cylinderInstance.container.isTransferable = true;
       }
 
@@ -709,7 +702,13 @@
     }
   */
     
-    
+    if(!Cylinder.prototype.cylinders) {
+        Cylinder.prototype.cylinders = [];
+        Cylinder.prototype.ids = 1;
+        Cylinder.prototype.cylinderParts = 0;
+      }
+    Cylinder.prototype.ids += 50;
+    Cylinder.prototype.cylinderParts = 0;
     return self.cylinder;
   }
 
