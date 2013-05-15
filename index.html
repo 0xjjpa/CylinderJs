@@ -28,11 +28,19 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
+          <h1> Introduction </h1>
           <h3>What are 3D Orthographic Objects?</h3>
 
 <p>Unlike normal 3D objects that are rendered on a display through projection matrix operations (See <a href="http://en.wikipedia.org/wiki/3D_projection">3D Projection</a>), 3D Orthographic Objects precalculate specific camera values in order to display a 3D effect without using geometric primitives.  </p>
 
 <div id="orthographic"></div>
+
+<p>In our case, we used <a href="http://www.autodesk.com/products/autodesk-maya/overview">Autodesk Maya</a> in order to obtain angle values for a fixed camera. Those values are then give to a ratio based function in order to display the orthographic views for our 3D Cylinder</p>
+
+<img src="images/CylinderOrthographicViews.png" width="690px" style="margin-bottom: 20px;"/>
+<p>The angle for the camera is used in order to obtain the values of the main composite path of the cylinder, as well as the Ry value of both ellipses. We then obtain the angle between the difference of the ellipsis Rx in order to be able to display a content inside our cylinder.</p>
+
+<div id="cylinder-with-content"></div>
 
 <pre><code>$ cd your_repo_root/repo_name
 $ git fetch origin
@@ -41,9 +49,11 @@ $ git checkout gh-pages
 
 <p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
 
-<h3>Designer Templates</h3>
+<h3>Performance</h3>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>CylinderJS was created with a goal on mind: allow 3D interaction with mobile applications through Javascript. Current 3D solutions such as WebGL are still not wide supported, while performing the entire Graphics Pipeline in Javascript is too consuming for a mobile CPU. By "rendering" the orthographics views of a 3D object, we can manipulate and interact with cylinders without having to render each view on every manipulation.</p>
+
+<p></p>
 
 <h3>Rather Drive Stick?</h3>
 
@@ -53,9 +63,9 @@ $ git checkout gh-pages
 
 <p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
 
-<h3>Support or Contact</h3>
+<h3>Alpha version and Support</h3>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p>Cylinder JS it's still a work on progress. You will find inefficient code, no comments and logs to console in the code. Please allow some time while I wrap a release version. You are entitled to use it for free in the meantime as well as to reach me at<a href="mailto:me@jjperezaguinaga.com">me@jjperezaguinaga.com</a> for any comments on the project.</p>
         </section>
 
         <aside id="sidebar">

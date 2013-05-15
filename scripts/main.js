@@ -1,10 +1,11 @@
 var orthographic = Raphael('orthographic', '690', '160');
+var withContent = Raphael('cylinder-with-content', '690', '160');
 
 var x = 0;
 var y = 0;
 
 (function(x,y,rsr){
-x +=100
+x +=170
 y +=10
 var topRx = 20;
 var topRy = 20;
@@ -48,5 +49,12 @@ rsr.text(x+120, y-10, "Made of an ellipse");
 rsr.text(x+120, y+40, "a composite path ");
 rsr.text(x+120, y+100, "and other ellipse");
 })(x,y,orthographic);
+
+(function(x,y,rsr){
+	x+=200
+	y+=30
+	rsr.cylinder(x, y, 10, 40, 80, 90, true, 60);
+	rsr.cylinder(x+200, y, 40, 40, 80, 40, true, 30);
+})(x,y,withContent);
 
 
