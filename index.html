@@ -41,7 +41,7 @@
 
 <div id="cylinder-with-content"></div>
 
-<h3>Demo Usage</h3>
+<h3>Demo Usage and Docs</h3>
 
 <p>CylinderJS is a <a href="http://raphaeljs.com/">RaphaelJS</a> plugin, which means its required in order to work. After importing the RaphaelJS library, you can create a cylinder through the following directive</p>
 
@@ -56,30 +56,18 @@ var cylinder = paper.cylinder(
   cylinderHeight, // (int) Height of the cylinder
   CyRotation, // (int) [0-100] Camera value give to calculate the orthographic view
   hasContent, // (boolean) -Optional- Whether the cylinder has a content
-  percentageContent, 
-  padding
+  percentageContent, (int) [0-100] -Optional- Percentage of the content related to the cylinder
+  padding (float) [.15-1] -Optional- Padding between content and cylinder
 );
-
 </code>
 </pre>
 
+<h4> Creating a basic cylinder </h4>
 
 
-
+<h3>Objectives, Roadpmap and Support</h3>
 
 <p>CylinderJS was created with a goal on mind: allow 3D interaction with mobile applications through Javascript. Current 3D solutions such as WebGL are still not wide supported, while performing the entire Graphics Pipeline in Javascript is too consuming for a mobile CPU. By "rendering" the orthographics views of a 3D object, we can manipulate and interact with cylinders without having to render each view on every manipulation.</p>
-
-<p></p>
-
-<h3>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>Alpha version and Support</h3>
 
 <p>Cylinder JS it's still a work on progress. You will find inefficient code, no comments and logs to console in the code. Please allow some time while I wrap a release version. You are entitled to use it for free in the meantime as well as to reach me at<a href="mailto:me@jjperezaguinaga.com">me@jjperezaguinaga.com</a> for any comments on the project.</p>
         </section>
