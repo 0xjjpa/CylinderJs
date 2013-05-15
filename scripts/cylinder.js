@@ -951,7 +951,7 @@ function Content() {
       self.transfer(parent.content, child.content, false, parent, child);  
     }
 
-    self.cylinder.join = function(cylinderInstance) {      
+    self.cylinder.joinBottom = function(cylinderInstance) {      
       if(this.content && !this.content.transferId) {
         this.content.transferId = Cylinder.prototype.ids+Cylinder.prototype.cylinderParts++;
         this.content.isTransferable = true;

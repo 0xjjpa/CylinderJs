@@ -11,7 +11,7 @@ var volumen = Raphael('volumen', '690', '160');
 var transferable = Raphael('transferable', '690', '160');
 var transferableMultiple = Raphael('transferable-multiple', '690', '160');
 var join = Raphael('join', '690', '260');
-var joinMultiple = Raphael('join-multiple', '690', '260');
+var joinMultiple = Raphael('join-multiple', '690', '340');
 
 var x = 0;
 var y = 0;
@@ -161,34 +161,84 @@ rsr.text(x+120, y+100, "and other ellipse");
     var c2 = rsr.cylinder(x+200, y, 40, 40, 80, 40, true, 30);
     c1.attr({content: {fill: "rgba(15, 55, 86, .5)", percentage: 10}});
     c2.attr({content: {fill: "rgba(229, 130, 0, .5)", percentage: 80}});
-    c1.join(c2)
+    c1.joinBottom(c2)
 })(x,y,join);
 
 (function(x,y,rsr){
     x+=80
     y+=30
-    var c1 = rsr.cylinder(x-10, y, 10, 40, 80, 90, true, 20);
-    var c2 = rsr.cylinder(x+120, y, 30, 40, 80, 40, true, 70);
-    var c3 = rsr.cylinder(x+240, y, 10, 10, 40, 10, true, 10);
-    var c4 = rsr.cylinder(x+340, y+5, 10, 40, 80, 90, true, 90);
-    var c5 = rsr.cylinder(x+460, y, 20, 20, 80, 40, true, 30);
-    c1.attr({content: {fill: "rgba(15, 55, 86, .5)"}});
-    c2.attr({content: {fill: "rgba(15, 55, 86, .5)"}});
-    c3.attr({content: {fill: "rgba(15, 55, 86, .5)"}});
-    c4.attr({content: {fill: "rgba(15, 55, 86, .5)"}});
-    c5.attr({content: {fill: "rgba(15, 55, 86, .5)"}});
-    
-    c1.transferable();
-    c2.transferable();
-    c3.transferable();
-    c4.transferable();
-    c5.transferable();
+    //Tubo de Ensayo
+var tubo = rsr.cylinder(x, y, 10, 10, 80, 30, true, 40);
 
-    c1.join(c2)
-    c1.displayVolumen();
+tubo.transferable();
+tubo.draggable();
+tubo.attr({content: {fill: "rgba(40, 100, 159, 1)"}});
+tubo.displayVolumen();
 
-    c3.join(c4);
-    c3.displayVolumen();
+//Matraz
+var matrazTop = rsr.cylinder(x+100, y, 10, 10, 30, 30, true, 40);
+var matrazBottom = rsr.cylinder(x+100, y, 10, 40, 60, 90, true, 40);
+
+matrazTop.joinBottom(matrazBottom);
+matrazTop.displayVolumen();
+
+matrazTop.transferable();
+matrazTop.draggable();
+matrazTop.attr({    content: {fill: "rgba(20, 160, 59, 1)"}});
+matrazBottom.transferable();
+matrazBottom.draggable();
+matrazBottom.attr({ content: {fill: "rgba(20, 160, 59, 1)"}});
+
+
+var tuboBig = rsr.cylinder(x+220, y+10, 40, 40, 80, 40, true, 40);
+tuboBig.displayVolumen();
+
+tuboBig.transferable();
+tuboBig.draggable();
+tuboBig.attr({  content: {fill: "rgba(90, 20, 230, 1)"}});
+
+
+var pipetaTop = rsr.cylinder(x, y+120, 10, 10, 80, 30, true, 90);
+var pipetaMain = rsr.cylinder(x, y+120, 6, 6, 40, 30, true, 90);
+var pipetaBottom = rsr.cylinder(x, y+120, 6, 6, 40, 40, true, 90);
+
+pipetaTop.joinBottom(pipetaMain);
+pipetaMain.joinBottom(pipetaBottom);
+pipetaTop.displayVolumen();
+
+pipetaTop.transferable();
+pipetaTop.draggable();
+pipetaTop.attr({    content: {fill: "rgba(200, 100, 9, 1)"}});
+
+pipetaMain.transferable();
+pipetaMain.draggable();
+pipetaMain.attr({   content: {fill: "rgba(200, 100, 9, 1)"}});
+
+pipetaBottom.transferable();
+pipetaBottom.draggable();
+pipetaBottom.attr({ content: {fill: "rgba(200, 100, 9, 1)"}});
+
+var largeTube = rsr.cylinder(x+100, y+120, 10, 10, 170, 20, true, 60, .30);
+largeTube.transferable();
+largeTube.draggable();
+largeTube.attr({    content: {fill: "rgba(99, 0, 99, 1)"}});
+largeTube.displayVolumen();
+
+
+//Matraz
+var matraz2Bottom = rsr.cylinder(x+200, y+200, 10, 40, 60, 90, true, 40);
+var matraz2Top = rsr.cylinder(x+200, y+140, 10, 30, 30, 60, true, 40);
+
+
+matraz2Top.joinBottom(matraz2Bottom);
+matraz2Top.displayVolumen();
+
+matraz2Top.transferable();
+matraz2Top.draggable();
+matraz2Top.attr({   content: {fill: "rgba(0, 0, 59, 1)"}});
+matraz2Bottom.transferable();
+matraz2Bottom.draggable();
+matraz2Bottom.attr({    content: {fill: "rgba(0, 0, 59, 1)"}});
 })(x,y,joinMultiple);
 
 function AnimatePercentage(){
