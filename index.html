@@ -28,7 +28,6 @@
     <div id="content-wrapper">
       <div class="inner clearfix">
         <section id="main-content">
-          <h1> Introduction </h1>
           <h3>What are 3D Orthographic Objects?</h3>
 
 <p>Unlike normal 3D objects that are rendered on a display through projection matrix operations (See <a href="http://en.wikipedia.org/wiki/3D_projection">3D Projection</a>), 3D Orthographic Objects precalculate specific camera values in order to display a 3D effect without using geometric primitives.  </p>
@@ -42,14 +41,31 @@
 
 <div id="cylinder-with-content"></div>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<h3>Demo Usage</h3>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>CylinderJS is a <a href="http://raphaeljs.com/">RaphaelJS</a> plugin, which means its required in order to work. After importing the RaphaelJS library, you can create a cylinder through the following directive</p>
 
-<h3>Performance</h3>
+<pre>
+  <code>
+var paper = Raphael('demoCylinder', '690', '160');
+var cylinder = paper.cylinder(
+  x, // (int) Initial x location of the cylinder
+  y, // (int) Initial y location of the cylinder
+  topWidth, // (int) Width of the top lid of the cylinder
+  bottomWidth, // (int) Width of the bottom lid of the cylinder
+  cylinderHeight, // (int) Height of the cylinder
+  CyRotation, // (int) [0-100] Camera value give to calculate the orthographic view
+  hasContent, // (boolean) -Optional- Whether the cylinder has a content
+  percentageContent, 
+  padding
+);
+
+</code>
+</pre>
+
+
+
+
 
 <p>CylinderJS was created with a goal on mind: allow 3D interaction with mobile applications through Javascript. Current 3D solutions such as WebGL are still not wide supported, while performing the entire Graphics Pipeline in Javascript is too consuming for a mobile CPU. By "rendering" the orthographics views of a 3D object, we can manipulate and interact with cylinders without having to render each view on every manipulation.</p>
 
